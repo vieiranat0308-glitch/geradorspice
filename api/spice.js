@@ -5,7 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 // POST { etapa: 'parcial' | 'lead' | 'estrategia' | 'semana', ... }
 // GET  ?token=SPICE_ADMIN_TOKEN  -> lista de contatos e respostas (página /leads.html)
 
-export const config = { maxDuration: 60 };
+export const config = { maxDuration: 120 };
 
 const MODEL = 'claude-opus-5-5';
 const LIMITE_POR_SESSAO = 15;       // gerações por visitante por dia
@@ -93,7 +93,8 @@ function validarPeriodo(d) {
 
 function perfilTexto(dados, lead, evento) {
   const linhas = [
-    ['Tipo de restaurante', dados.tipo], ['Como vende', dados.operacao], ['Tempo de casa', dados.tempo],
+    ['Tipo de restaurante', dados.tipo], ['Prato ou produto mais pedido', dados.campeao], ['Bairro e cidade', dados.bairro],
+    ['Como vende', dados.operacao], ['Tempo de casa', dados.tempo],
     ['Cliente ideal', dados.faixa], ['Maior problema', dados.dor], ['Como é descoberto', dados.descoberta],
     ['Ticket médio', dados.ticket], ['Diferencial', dados.diferencial], ['Tom desejado', dados.tom],
     ['Quer vender', dados.vender], ['Concorrência', dados.concorrencia], ['Instagram hoje', dados.status],
@@ -109,21 +110,58 @@ function perfilTexto(dados, lead, evento) {
 }
 
 const SISTEMA = `Você é estrategista de conteúdo da Spice, agência de marketing gastronômico do Rio de Janeiro.
-Você cria calendários de Instagram para restaurantes, bares, hamburguerias e similares.
-Escreva em português do Brasil, com linguagem de dono de restaurante, sem jargão de marketing.
-As ideias precisam ser concretas e possíveis de gravar com o celular, respeitando o que o restaurante não quer mostrar e quanto o dono quer aparecer.
-Cada título é um gancho forte para os primeiros 3 segundos. A legenda explica o que gravar ou mostrar e o que escrever, em 1 a 3 frases.
-O CTA é uma ação simples e específica. Hashtags: 3 a 5, relevantes e locais quando fizer sentido.
-Não invente preços, prêmios, números ou fatos sobre o restaurante.`;
+Você cria calendários de Instagram para restaurantes, bares, hamburguerias e similares. Quem recebe é o dono, e ele precisa terminar a leitura com vontade de gravar.
+
+Regras de qualidade:
+- Nada genérico. Cada post precisa citar algo concreto deste restaurante: o prato mais pedido, o bairro, o diferencial, o problema que o dono contou ou o tipo de cliente. Se o post servisse para qualquer outro restaurante, reescreva.
+- O gancho é a frase exata dita ou escrita na tela nos 3 primeiros segundos. Precisa gerar curiosidade, tensão ou identificação, em no máximo 12 palavras. Proibido abrir com "Venha conhecer", "Você sabia que somos", "Confira", "Olha só", "Bom dia", nome do restaurante ou adjetivos vazios (delicioso, irresistível, o melhor da cidade, qualidade e sabor).
+- O roteiro diz o que gravar, cena por cena, em 2 a 4 passos curtos, possível de fazer com celular em menos de 30 minutos. Respeite o que o dono não quer mostrar e o quanto ele quer aparecer.
+- A legenda é pronta para copiar: começa reforçando o gancho, entrega o contexto em 2 a 4 frases e termina no CTA.
+- O CTA é uma única ação, ligada ao objetivo do dono (reservar, pedir pelo WhatsApp, salvar, marcar alguém, responder enquete).
+- Não repita estrutura, gancho ou ideia entre posts. Varie formato, ângulo e tipo de gancho.
+- Não invente preços, prêmios, números de vendas ou fatos sobre o restaurante. Pode sugerir que o dono mostre o preço real dele.
+- Português do Brasil, linguagem de quem trabalha em restaurante, sem jargão de marketing. Hashtags: 3 a 5, específicas (prato, bairro, cidade).`;
+
+// O que cada objetivo pede do calendário. Muda os temas, os ângulos e os CTAs de cada pessoa.
+const PLANO_OBJETIVO = {
+  'Encher o salão': 'Levar gente para o salão, principalmente nos dias fracos. Ângulos: a experiência que só existe no local (cheiro, som, ambiente, prato chegando à mesa), motivos para vir num dia específico da semana, grupos e aniversários, reserva fácil. CTAs de reserva, de marcar quem vem junto e de salvar para o fim de semana.',
+  'Mais pedidos no delivery próprio': 'Gerar pedidos pelo canal próprio (WhatsApp ou link). Ângulos: o pedido chegando inteiro e quente, combos para dividir, o momento certo de pedir (jogo, chuva, noite de série), facilidade de pedir direto. CTAs de pedir pelo WhatsApp ou link da bio.',
+  'Depender menos dos apps': 'Migrar o cliente dos apps para o canal próprio sem atacar os apps. Ângulos: vantagem exclusiva de quem pede direto, atendimento de gente de verdade, bastidor que o app não mostra, programa de fidelidade. CTAs de salvar o WhatsApp e pedir direto.',
+  'Fazer o cliente voltar': 'Fidelizar quem já conhece. Ângulos: clientes reais e frequentes, novidades que dão motivo para voltar, rituais da casa, comunidade e pertencimento, pedido favorito do cliente. CTAs de comentar, marcar e participar.',
+  'Lançar cardápio ou item novo': 'Lançar um item com sequência de expectativa. Ângulos: teaser sem revelar, bastidor do teste da receita, revelação, primeira reação de cliente, escassez real. CTAs de ativar lembrete, comentar e reservar ou pedir o lançamento.',
+  'Ser referência no bairro': 'Virar a referência do bairro no tipo de comida. Ângulos: história e origem, conhecimento técnico do produto explicado de forma simples, conexão com o bairro e vizinhos, opinião forte sobre o próprio produto, parcerias locais. CTAs de salvar, compartilhar e seguir.'
+};
+
+// Tipos de gancho. Cada post recebe um diferente, numa ordem própria de cada visitante.
+const GANCHOS = [
+  'segredo ou bastidor ("o que ninguém vê antes de abrir")',
+  'erro comum do cliente ("você está pedindo X do jeito errado")',
+  'lista com número ("3 coisas que...")',
+  'POV de uma situação do cliente ideal',
+  'contraste ou antes e depois',
+  'pergunta ou enquete que divide opiniões',
+  'reação ou fala real de cliente',
+  'desafio, teste ou cronômetro',
+  'mito ou verdade sobre o produto',
+  'história do dono ou da origem da receita',
+  'detalhe extremo em close (som, textura, ponto)',
+  'urgência real (dia, horário ou quantidade limitada que a casa de fato tem)'
+];
+
+function semente(texto) {
+  let h = 0;
+  for (const c of String(texto || 'x')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return h;
+}
 
 const SCHEMA_ESTRATEGIA = {
   type: 'object', additionalProperties: false,
   required: ['posicionamento', 'tom_de_voz', 'pilares', 'temas_semanais'],
   properties: {
-    posicionamento: { type: 'string', description: 'Uma frase de posicionamento do restaurante.' },
-    tom_de_voz: { type: 'string', description: 'Como o perfil deve soar, em uma ou duas frases.' },
-    pilares: { type: 'array', items: { type: 'string' }, description: '3 a 5 pilares de conteúdo.' },
-    temas_semanais: { type: 'array', items: { type: 'string' }, description: 'Um tema curto por semana, na ordem.' }
+    posicionamento: { type: 'string', description: 'Uma frase de posicionamento específica deste restaurante.' },
+    tom_de_voz: { type: 'string', description: 'Como o perfil deve soar, em uma ou duas frases, com um exemplo de fala.' },
+    pilares: { type: 'array', items: { type: 'string' }, description: '3 a 5 pilares de conteúdo ligados ao objetivo.' },
+    temas_semanais: { type: 'array', items: { type: 'string' }, description: 'Um tema por semana, na ordem, formando uma progressão até o objetivo.' }
   }
 };
 
@@ -135,11 +173,15 @@ const SCHEMA_SEMANA = {
       type: 'array',
       items: {
         type: 'object', additionalProperties: false,
-        required: ['data', 'formato', 'titulo', 'legenda', 'cta', 'hashtags', 'categoria'],
+        required: ['data', 'formato', 'titulo', 'gancho', 'roteiro', 'legenda', 'cta', 'hashtags', 'categoria'],
         properties: {
           data: { type: 'string', description: 'Data no formato DD/MM, uma das datas permitidas.' },
           formato: { type: 'string', enum: ['Reels', 'Carrossel', 'Foto', 'Stories'] },
-          titulo: { type: 'string' }, legenda: { type: 'string' }, cta: { type: 'string' },
+          titulo: { type: 'string', description: 'Nome curto da ideia, para o dono identificar o post.' },
+          gancho: { type: 'string', description: 'Frase exata dos 3 primeiros segundos ou da primeira tela.' },
+          roteiro: { type: 'array', items: { type: 'string' }, description: '2 a 4 passos do que gravar ou de cada tela do carrossel.' },
+          legenda: { type: 'string', description: 'Legenda pronta para copiar.' },
+          cta: { type: 'string' },
           hashtags: { type: 'string' },
           categoria: { type: 'string', enum: ['entrada', 'prato_principal', 'sobremesa'] }
         }
@@ -155,7 +197,7 @@ async function gerarJSON(prompt, schema) {
     max_tokens: 16000,
     betas: ['server-side-fallback-2026-07-01'],
     fallbacks: 'default',
-    output_config: { effort: 'low', format: { type: 'json_schema', schema } },
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema } },
     system: SISTEMA,
     messages: [{ role: 'user', content: prompt }]
   });
@@ -224,11 +266,14 @@ export default async function handler(req, res) {
       }
       const blocos = plano(dados.inicio, dados.fim, Number(dados.total)).filter(b => b.qtd > 0);
       const perfil = perfilTexto(dados, lead, evento);
+      const planoObjetivo = PLANO_OBJETIVO[dados.objetivo] || 'Atingir o objetivo que o dono descreveu.';
 
       if (etapa === 'estrategia') {
         if (redis && sessaoOk(sessao) && lead) await salvarRegistro(redis, sessao, { evento, status: 'completo', lead });
-        const prompt = `Perfil do restaurante:\n${perfil}\n\nO calendário tem ${blocos.length} semana(s). ` +
-          `Defina o posicionamento, o tom de voz, de 3 a 5 pilares de conteúdo e exatamente ${blocos.length} tema(s) semanal(is), um por semana, em ordem, que levem ao objetivo do dono.`;
+        const prompt = `Perfil do restaurante:\n${perfil}\n\nO que o objetivo "${curto(dados.objetivo)}" pede: ${planoObjetivo}\n\n` +
+          `O calendário tem ${blocos.length} semana(s). Defina o posicionamento, o tom de voz, de 3 a 5 pilares de conteúdo e exatamente ` +
+          `${blocos.length} tema(s) semanal(is), em ordem, formando uma progressão que leve ao objetivo e ataque o maior problema do dono. ` +
+          `Tudo precisa ser específico deste restaurante, nunca uma estratégia que serviria para qualquer um.`;
         return res.status(200).json({ data: await gerarJSON(prompt, SCHEMA_ESTRATEGIA) });
       }
 
@@ -236,11 +281,18 @@ export default async function handler(req, res) {
       if (!bloco) return res.status(400).json({ error: 'Semana inválida.' });
       const est = body.estrategia || {};
       const formatos = Array.isArray(dados.formatos) && dados.formatos.length ? dados.formatos.join(', ') : 'Reels, Carrossel, Foto';
-      const prompt = `Perfil do restaurante:\n${perfil}\n\nEstratégia definida:\n- Posicionamento: ${curto(est.posicionamento, 400)}\n` +
+      // Tipos de gancho deste bloco: seguem a numeração global do post e uma ordem própria de cada visitante.
+      const antes = blocos.filter(b => b.n < bloco.n).reduce((a, b) => a + b.qtd, 0);
+      const base = semente(sessao) % GANCHOS.length;
+      const ganchos = Array.from({ length: bloco.qtd }, (_, i) => 'post ' + (i + 1) + ': ' + GANCHOS[(base + (antes + i) * 5) % GANCHOS.length]);
+      const prompt = `Perfil do restaurante:\n${perfil}\n\nO que o objetivo "${curto(dados.objetivo)}" pede: ${planoObjetivo}\n\n` +
+        `Estratégia definida:\n- Posicionamento: ${curto(est.posicionamento, 400)}\n` +
         `- Tom de voz: ${curto(est.tom_de_voz, 400)}\n- Pilares: ${(est.pilares || []).map(p => curto(p)).join('; ')}\n` +
         `- Tema desta semana: ${curto((est.temas_semanais || [])[bloco.n - 1])}\n\n` +
         `Crie exatamente ${bloco.qtd} post(s) para a semana ${bloco.n}. Datas permitidas: ${bloco.datas.join(', ')}. ` +
         `No máximo 1 post por data; espalhe os posts pela semana. Use só estes formatos: ${formatos}. ` +
+        `Tipo de gancho de cada post, na ordem das datas: ${ganchos.join('; ')}. ` +
+        `Cada post precisa avançar o objetivo e citar algo concreto do perfil (prato mais pedido, bairro, diferencial ou o problema do dono). ` +
         `No campo data, escreva só DD/MM.`;
       return res.status(200).json({ data: await gerarJSON(prompt, SCHEMA_SEMANA) });
     }

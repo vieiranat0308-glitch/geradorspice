@@ -89,6 +89,11 @@ input:focus{border-color:var(--orange)}
 .badge.cat{background:var(--ink)}
 .post h4{font-size:17px;font-weight:800;line-height:1.25;margin-bottom:6px}
 .post p{font-size:15px;color:var(--ink-soft)}
+.post .gancho{margin:8px 0;background:#fff4ee;border-left:4px solid var(--orange);border-radius:8px;padding:10px 12px;font-weight:800;font-size:16px;color:var(--ink)}
+.post .gancho span,.post .rot span,.post .leg span{display:block;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:3px}
+.post .rot{margin:8px 0;font-size:14px;color:var(--ink-soft)}
+.post .rot ol{padding-left:18px}
+.post .leg{margin-top:8px}
 .post .cta{margin-top:8px;font-weight:700;font-size:14px;color:var(--ink)}
 .post .cta em{font-style:normal;color:var(--orange-deep)}
 .post .tags{margin-top:8px;font-size:13px;color:var(--pink-deep);font-weight:600;word-break:break-word}
@@ -257,6 +262,8 @@ const EVENTOS = {
    ============================================================ */
 const STEPS = [
   {titulo:'Seu restaurante', campos:[
+    {id:'campeao', tipo:'text', label:'Qual é o prato ou produto mais pedido da casa?', ph:'Ex.: smash duplo com cheddar'},
+    {id:'bairro', tipo:'text', label:'Bairro e cidade', ph:'Ex.: Tijuca, Rio de Janeiro'},
     {id:'tipo', tipo:'chips', label:'Tipo de restaurante', opts:['Hamburgueria','Pizzaria','Restaurante','Bar','Japonês','Confeitaria ou cafeteria','Dark kitchen','Steakhouse ou churrascaria','Outro']},
     {id:'operacao', tipo:'chips', label:'Como você vende hoje?', opts:['Só salão','Salão e delivery','Só delivery próprio','Delivery em apps','Dark kitchen']},
     {id:'tempo', tipo:'chips', label:'Há quanto tempo o restaurante existe?', opts:['Menos de 1 ano','1 a 3 anos','3 a 5 anos','Mais de 5 anos']},
@@ -415,6 +422,7 @@ function fieldOk(c){
   if(c.id==='nome') return !!v && v.trim().length>=2;
   if(c.id==='instagram') return !!v && v.replace('@','').trim().length>=2;
   if(c.id==='whatsapp') return !!v && v.replace(/\D/g,'').length>=10;
+  if(c.tipo==='text') return !!v && v.trim().length>=2;
   if(c.tipo==='multi') return Array.isArray(v) && v.length>0;
   return !!v;
 }
@@ -517,32 +525,126 @@ async function api(body, timeout){
   } finally { clearTimeout(t); }
 }
 
-/* Calendário de exemplo (usado só enquanto a chave da IA não está configurada). */
+/* Calendário de exemplo (usado só enquanto a chave da IA não está configurada).
+   Mesmo sem IA, muda com o objetivo, o prato mais pedido, o bairro e a ordem de cada visitante. */
+const DEMO = {
+  'Encher o salão': {
+    pos:'O lugar de {bairro} onde {o} {prato} vale a saída de casa, até no dia mais parado da semana.',
+    pilares:['A experiência que só existe no salão','Motivo para vir hoje','Gente de verdade na mesa','Reserva sem complicação'],
+    temas:['Mostre o que o delivery não entrega','Dê um motivo para cada dia fraco','Transforme cliente em convite','Feche a agenda do fim de semana','Última chamada para reservar'],
+    ideias:[
+      ['O som que chama a mesa','Escuta isso antes {do} {prato} chegar na sua mesa',['Close do preparo {do} {prato} com o som original','Corte para o garçom levando à mesa','Reação de quem recebe'],'Tem coisa que só acontece aqui dentro. {O} {prato} sai da cozinha e em segundos está na sua frente, do jeito que tem que ser.','Marque quem vem com você essa semana','entrada'],
+      ['Terça não precisa ser parada','Por que terça é o melhor dia pra vir aqui em {bairro}',['Salão tranquilo com luz bonita','Mesa sendo arrumada','Prato servido sem espera'],'Dia de semana é o segredo de quem conhece: mesa garantida, atendimento sem pressa e {o} {prato} do mesmo jeito.','Reserve pelo WhatsApp e venha hoje','prato_principal'],
+      ['Aniversário com a casa cheia','POV: seu aniversário aqui e a mesa inteira pedindo {prato}',['Mesa comprida com amigos brindando','Pratos chegando em sequência','Foto do grupo no final'],'Junta a turma que a gente cuida do resto. Mesa para grupo, reserva no WhatsApp e {prato} para todo mundo.','Marque quem está te devendo um aniversário','sobremesa'],
+      ['3 lugares da casa','3 cantos daqui que pouca gente de {bairro} conhece',['Mostre o melhor lugar da casa','Mostre o detalhe do balcão ou da cozinha','Termine com o prato servido'],'Cada canto tem uma história. Qual deles você escolhe na próxima visita?','Salve para lembrar no fim de semana','entrada'],
+      ['Da cozinha à mesa em tempo real','Cronometrei: quanto tempo {o} {prato} leva até sua mesa',['Cronômetro na tela','Preparo acelerado','Prato chegando e o tempo final'],'Feito na hora, sem pré-pronto. Esse é o tempo real do nosso {prato}.','Reserve sua mesa pelo link da bio','prato_principal'],
+      ['Pergunta da casa','Mesa pra dois ou mesa pra galera?',['Duas mesas lado a lado, uma para casal, outra para grupo','Enquete no stories','Mostre o resultado no dia seguinte'],'A gente prepara a mesa do jeito que você vier. Conta aqui como você prefere.','Responda nos comentários','sobremesa']
+    ],
+    cta:'Reserve pelo WhatsApp'
+  },
+  'Mais pedidos no delivery próprio': {
+    pos:'{O} {prato} que chega em casa como sai da cozinha, pedido direto com a gente em {bairro}.',
+    pilares:['O pedido chegando perfeito','O momento certo de pedir','Combos para dividir','Pedir direto é mais fácil'],
+    temas:['Mostre o caminho do pedido','Crie o hábito do dia de pedir','Venda o combo para dividir','Facilite o pedido direto','Feche o mês com pedido recorrente'],
+    ideias:[
+      ['Chegou do jeito certo','Assim {o} {prato} chega na sua casa em {bairro}',['Embalagem sendo fechada','Entregador saindo','Cliente abrindo a caixa'],'Montado na hora, embalado para não perder nada no caminho. Do nosso balcão até a sua mesa.','Peça pelo WhatsApp do link da bio','prato_principal'],
+      ['Noite de jogo','POV: começou o jogo e alguém lembrou de pedir {prato}',['TV com o jogo','Celular mandando mensagem no WhatsApp','Campainha e caixa aberta no sofá'],'Jogo bom pede comida boa. Pede direto que a gente já conhece o caminho.','Chame no WhatsApp antes do apito','entrada'],
+      ['Combo que divide bem','3 jeitos de dividir um pedido sem briga',['Mostre o combo aberto','Divida em porções','Mostre todo mundo satisfeito'],'Para casal, para a família ou para a turma. O combo resolve a janta de todo mundo.','Salve e mande para quem vai dividir com você','prato_principal'],
+      ['Pedir direto em 30 segundos','Cronometrei quanto tempo leva pra pedir direto com a gente',['Cronômetro na tela','Mensagem no WhatsApp','Confirmação do pedido'],'Sem cadastro, sem complicação. Mandou mensagem, a gente já está preparando.','Salve nosso WhatsApp agora','entrada'],
+      ['Dia de chuva','Choveu em {bairro}? Você já sabe o que fazer',['Janela com chuva','Preparo {do} {prato}','Entrega com capa de chuva'],'Dia de chuva é dia de pedir e ficar em casa. A gente leva quentinho.','Peça pelo link da bio','sobremesa'],
+      ['O erro que esfria seu pedido','O erro que todo mundo comete ao pedir {prato} em casa',['Mostre o erro (deixar fechado, esquentar no micro)','Mostre o jeito certo','Prato pronto para comer'],'Dica da cozinha para seu pedido ficar como no salão.','Comente "quero" que a gente manda o cardápio','entrada']
+    ],
+    cta:'Peça pelo WhatsApp'
+  },
+  'Depender menos dos apps': {
+    pos:'Quem pede direto com a gente em {bairro} é tratado pelo nome, não por número de pedido.',
+    pilares:['Vantagem de pedir direto','Gente de verdade atendendo','Bastidor que o app não mostra','Cliente da casa'],
+    temas:['Mostre quem está do outro lado','Explique a vantagem de pedir direto','Crie o clube de quem pede direto','Mostre o cliente fiel','Chame para salvar o WhatsApp'],
+    ideias:[
+      ['Quem responde seu pedido','Quem atende seu pedido aqui não é um robô',['Rosto ou mãos de quem atende o WhatsApp','Mensagem chegando','Pedido indo para a cozinha'],'Quando você pede direto, fala com a gente. Dá para pedir sem cebola, perguntar o ponto, mandar um recado.','Salve nosso WhatsApp','entrada'],
+      ['Pedir direto x pedir no app','O que muda quando você pede {o} {prato} direto com a gente',['Duas telas lado a lado','Destaque a vantagem real que a casa oferece','Finalize com o WhatsApp na tela'],'Sem criticar ninguém: quem pede direto ganha o que a casa oferece de verdade para o cliente dela.','Peça direto pelo link da bio','prato_principal'],
+      ['O bilhete da casa','Todo pedido direto sai daqui com isso dentro',['Mão escrevendo um bilhete','Bilhete entrando na caixa','Cliente lendo em casa'],'É pequeno, mas é nosso jeito de dizer obrigado para quem escolhe pedir com a gente.','Peça direto e conta se recebeu o seu','sobremesa'],
+      ['Mito ou verdade','Mito ou verdade: pedir direto demora mais?',['Mito ou verdade na tela','Cronômetro do pedido direto','Resposta final'],'A gente cronometrou para tirar a dúvida.','Salve para lembrar no próximo pedido','entrada'],
+      ['Cliente desde o começo','Esse cliente pede {o} {prato} toda semana. Perguntei por quê',['Pergunta para o cliente (ou print da mensagem dele)','Pedido sendo preparado','Agradecimento'],'Cliente da casa tem nome, pedido favorito e atendimento de quem conhece.','Marque quem é cliente fiel da casa','sobremesa'],
+      ['Bastidor do fechamento','O que acontece aqui depois que o app fecha o pedido',['Cozinha em ritmo de pico','Conferência do pedido','Saída do entregador'],'Cada pedido passa por gente que se importa. Pedindo direto, essa conversa é com você.','Chame no WhatsApp','prato_principal']
+    ],
+    cta:'Salve nosso WhatsApp e peça direto'
+  },
+  'Fazer o cliente voltar': {
+    pos:'Em {bairro}, {o} {prato} é o motivo de quem vem uma vez voltar toda semana.',
+    pilares:['Cliente real da casa','Motivo novo para voltar','Rituais da casa','Comunidade'],
+    temas:['Mostre quem já é da casa','Dê um motivo novo para voltar','Crie um ritual semanal','Peça a opinião de quem conhece','Recompense quem volta'],
+    ideias:[
+      ['O pedido de sempre','Ele pede a mesma coisa há meses. Adivinha o quê',['Cliente chegando','Garçom já trazendo o pedido sem perguntar','Revelação {do} {prato}'],'Cliente da casa nem precisa pedir. A gente já sabe.','Marque quem tem pedido de sempre','sobremesa'],
+      ['Novidade da semana','Só quem vem essa semana vai provar isso',['Teaser do item ou variação da semana','Preparo','Primeira mordida'],'Toda semana tem um motivo novo para voltar. Essa é a desta.','Ative o lembrete e venha provar','prato_principal'],
+      ['Monte o próximo','Você escolhe: qual vai ser o próximo do cardápio?',['Duas opções na mesa','Enquete','Resultado e data de lançamento'],'Quem é da casa decide. Vota aqui que a gente faz.','Vote nos comentários','entrada'],
+      ['Mural da casa','Os clientes que fazem essa casa existir em {bairro}',['Montagem de fotos de clientes','Mensagens recebidas','Agradecimento da equipe'],'Obrigado por voltar, indicar e chamar a gente de casa.','Marque alguém que você trouxe aqui','sobremesa'],
+      ['O detalhe que ninguém percebe','O detalhe {do} {prato} que só quem volta percebe',['Close do detalhe','Explicação rápida','Prato completo'],'Na segunda vez você presta atenção nisso. Na terceira, já não vive sem.','Salve para reparar na próxima','entrada'],
+      ['Primeira vez x décima vez','Primeira vez aqui x décima vez aqui',['Cliente novo olhando o cardápio','Cliente antigo pedindo sem olhar','Os dois brindando'],'Todo cliente da casa começou na primeira vez. Qual é a sua?','Conta nos comentários há quanto tempo você vem','prato_principal']
+    ],
+    cta:'Marque quem vem com você'
+  },
+  'Lançar cardápio ou item novo': {
+    pos:'A casa {do} {prato} em {bairro} se prepara para lançar algo à altura.',
+    pilares:['Expectativa antes do lançamento','Bastidor da criação','Revelação','Primeiras reações'],
+    temas:['Crie expectativa sem revelar','Mostre o teste da receita','Revele o lançamento','Mostre as primeiras reações','Última chance da primeira leva'],
+    ideias:[
+      ['Teaser','Tem coisa nova saindo dessa cozinha em {bairro}',['Close desfocado de ingredientes','Mão tampando o prato','Data na tela'],'Ainda não podemos mostrar. Mas quem gosta {do} {prato} vai entender.','Ative o lembrete','entrada'],
+      ['Teste número 7','Essa receita deu errado 6 vezes antes dessa',['Erros do teste','Ajuste na receita','Versão final'],'Lançamento aqui só sai quando fica do nível {do} {prato}.','Comente o que você acha que é','entrada'],
+      ['A revelação','Chegou. E vai brigar com {o} {prato} pelo primeiro lugar',['Revelação em câmera lenta','Corte','Primeira mordida'],'O novo item da casa já está no cardápio.','Peça ou reserve pelo WhatsApp','prato_principal'],
+      ['Reação real','Primeira pessoa a provar. Olha a cara',['Cliente provando','Reação sem corte','Nome do item na tela'],'Ninguém sabia o que vinha. Essa foi a reação.','Marque quem precisa provar','sobremesa'],
+      ['3 motivos para provar','3 motivos para pedir o lançamento essa semana',['Motivo 1 no preparo','Motivo 2 no ingrediente','Motivo 3 no prato pronto'],'Feito para quem já ama a casa e quer uma novidade à altura.','Salve e venha provar','prato_principal'],
+      ['Primeira leva','A primeira leva é limitada. Quando acabar, acabou',['Quantidade real produzida','Itens saindo','Últimas unidades'],'Lançamento com produção do tamanho da nossa cozinha.','Reserve o seu pelo WhatsApp','prato_principal']
+    ],
+    cta:'Ative o lembrete'
+  },
+  'Ser referência no bairro': {
+    pos:'Quem pensa em {tipo} em {bairro} pensa {no} {prato} daqui.',
+    pilares:['Conhecimento do produto','História da casa','Conexão com o bairro','Opinião forte'],
+    temas:['Conte de onde veio a casa','Ensine algo sobre o produto','Conecte a casa com o bairro','Mostre opinião forte','Assuma o posto de referência'],
+    ideias:[
+      ['Como nasceu','Essa receita começou bem longe de {bairro}',['Foto ou objeto antigo','Dono contando em uma frase','Prato de hoje'],'Toda casa de referência tem uma história. Essa é a nossa.','Siga para conhecer o resto da história','entrada'],
+      ['O jeito certo','O jeito certo de comer {prato}, segundo quem faz',['Prato na mesa','Demonstração','Primeira mordida do jeito certo'],'Pode discordar nos comentários. Mas tente desse jeito uma vez.','Salve e teste na próxima','entrada'],
+      ['Mito do {tipo}','Mito ou verdade sobre {tipo} que todo mundo repete',['Mito na tela','Explicação mostrando o preparo','Verdade na tela'],'A gente explica porque faz isso todo dia.','Compartilhe com quem acredita nesse mito','prato_principal'],
+      ['Vizinhos de {bairro}','O que {bairro} tem que nenhum outro bairro tem',['Rua e vizinhança','Parceiro ou vizinho da casa','Prato servido'],'A casa é do bairro e o bairro é da casa.','Marque alguém de {bairro}','sobremesa'],
+      ['Opinião da cozinha','Opinião impopular: {prato} bom não precisa de…',['Opinião na tela','Prova no preparo','Prato final'],'Opinião forte de quem faz isso todo dia. Concorda?','Responda nos comentários','prato_principal'],
+      ['O detalhe técnico','O detalhe que separa {um} {prato} bom de {um} {prato} comum',['Close do detalhe técnico','Comparação','Resultado'],'É nesse detalhe que a gente não abre mão.','Salve para reparar na próxima','entrada']
+    ],
+    cta:'Siga e salve'
+  }
+};
+function hashStr(t){ let h=0; for(const c of String(t||'x')) h=(h*31+c.charCodeAt(0))>>>0; return h; }
 async function demoApi(body){
   await new Promise(r=>setTimeout(r,600));
   if(body.etapa==='lead') return {ok:true};
-  const pl = plano(body.dados.inicio, body.dados.fim, body.dados.total);
+  const d = body.dados;
+  const pl = plano(d.inicio, d.fim, d.total);
+  const D = DEMO[d.objetivo] || DEMO['Fazer o cliente voltar'];
+  const prato = d.campeao || 'prato da casa';
+  const bairro = (d.bairro || 'seu bairro').split(',')[0].trim();
+  const fem = /a$/i.test(prato.split(' ')[0]);   // pizza, coxinha, parmegiana...
+  const art = {O:fem?'A':'O', o:fem?'a':'o', do:fem?'da':'do', no:fem?'na':'no', um:fem?'uma':'um'};
+  const fill = t => String(t).replace(/\{(O|o|do|no|um)\}/g,(_,k)=>art[k]).replace(/\{prato\}/g,prato)
+    .replace(/\{bairro\}/g,bairro).replace(/\{tipo\}/g,String(d.tipo||'comida').toLowerCase());
   if(body.etapa==='estrategia'){
-    return {data:{posicionamento:'O lugar do bairro onde o hambúrguer é feito na hora, com ingrediente de verdade.',
-      tom_de_voz:'Descontraído e direto, com humor leve e muita fome.',
-      pilares:['Prato principal que vende','Bastidores da chapa','Prova social dos clientes','Combos e promoções'],
-      temas_semanais:['Apresente a casa','Mostre o processo','Venda o combo','Fidelize quem já veio','Última chamada'].slice(0,pl.length)}};
+    return {data:{posicionamento:fill(D.pos),
+      tom_de_voz:(d.tom||'Próximo e direto')+'. Fale como quem está no balcão conversando com o cliente.',
+      pilares:D.pilares, temas_semanais:D.temas.slice(0,pl.length)}};
   }
   const b = pl.find(x=>x.n===body.semana);
   const len = diffDays(b.isoIni,b.isoFim)+1;
-  const fmts = body.dados.formatos&&body.dados.formatos.length?body.dados.formatos:['Reels','Carrossel','Foto'];
-  const ideias=[
-   ['Esse é o smash que a gente não para de vender','Mostre a chapa, o som e o queijo derretendo em 15 segundos.','Chame no direct e peça o seu','entrada'],
-   ['3 motivos para pedir o combo da casa','Compare o combo com o pedido avulso e mostre a economia.','Peça pelo link da bio','prato_principal'],
-   ['Do pão ao molho: o que ninguém vê','Bastidores rápidos da cozinha antes da abertura.','Salve para pedir no fim de semana','entrada'],
-   ['Cliente real, burger real','Reposte o depoimento de quem pediu e mostre o prato.','Marque quem divide o burger com você','sobremesa'],
-   ['O hambúrguer de sexta que esgota','Teaser do especial de sexta com contagem regressiva.','Reserve o seu no WhatsApp','prato_principal'],
-   ['Sobremesa que fecha a noite','Close do milk-shake ou brownie com a luz do balcão.','Conta nos comentários: salgado ou doce?','sobremesa']];
+  const fmts = d.formatos&&d.formatos.length?d.formatos:['Reels','Carrossel','Foto'];
+  const antes = pl.filter(x=>x.n<b.n).reduce((a,x)=>a+x.qtd,0);
+  const base = hashStr(body.lead&&body.lead.sessao);
+  const tag = t => '#'+String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const hashtags = [tag(prato), tag(bairro.split(',')[0]), tag(d.tipo||'restaurante'), '#gastronomia'].join(' ');
   const posts=[]; for(let k=0;k<b.qtd;k++){
-    const off=Math.floor(k*len/b.qtd); const d=addDays(b.isoIni,off); const id=ideias[(k+b.n)%ideias.length];
-    posts.push({data:fmtDM(d),formato:fmts[k%fmts.length],titulo:id[0],legenda:id[1],cta:id[2],hashtags:'#hamburguerartesanal #rj #comidaderua',categoria:id[3]});
+    const off=Math.floor(k*len/b.qtd); const dia=addDays(b.isoIni,off);
+    const id=D.ideias[(base+antes+k)%D.ideias.length];
+    posts.push({data:fmtDM(dia),formato:fmts[(base+antes+k)%fmts.length],titulo:fill(id[0]),gancho:fill(id[1]),roteiro:id[2].map(fill),
+      legenda:fill(id[3]),cta:fill(id[4]),hashtags,categoria:id[5]});
   }
-  return {data:{tema:['Apresente a casa','Mostre o processo','Venda o combo','Fidelize quem já veio','Última chamada'][b.n-1],posts}};
+  return {data:{tema:D.temas[(b.n-1)%D.temas.length],posts}};
 }
 async function captureLead(){
   try{ await api({etapa:'lead', lead:leadPayload()}, 6000); leadSent=true; }
@@ -551,7 +653,7 @@ async function captureLead(){
 async function retry(fn,n){ let last; for(let i=0;i<=n;i++){ try{ return await fn(); }catch(e){ last=e; await new Promise(r=>setTimeout(r,900)); } } throw last; }
 
 function dadosPayload(){
-  return {tipo:S.tipo, operacao:S.operacao, tempo:S.tempo, faixa:S.faixa, dor:S.dor, descoberta:S.descoberta,
+  return {tipo:S.tipo, campeao:(S.campeao||'').trim(), bairro:(S.bairro||'').trim(), operacao:S.operacao, tempo:S.tempo, faixa:S.faixa, dor:S.dor, descoberta:S.descoberta,
     ticket:S.ticket, diferencial:S.diferencial, tom:S.tom, vender:S.vender, concorrencia:S.concorrencia,
     status:S.status, naoMostrar:S.naoMostrar, funcionou:S.funcionou, objetivo:S.objetivo,
     obstaculo:S.obstaculo, aparecer:S.aparecer, formatos:S.formatos,
@@ -584,11 +686,11 @@ async function generate(){
   const ativos = plano(S.inicio,S.fim,dados.total).filter(b=>b.qtd>0);
   lastRun = true;
   try{
-    const est = (await retry(()=>api({etapa:'estrategia',lead,dados,evento:EV.id},45000),1)).data;
+    const est = (await retry(()=>api({etapa:'estrategia',lead,dados,evento:EV.id},110000),1)).data;
     setStage(2);
     let feitas = 0;
     const blocos = await Promise.all(ativos.map(b =>
-      retry(()=>api({etapa:'semana',semana:b.n,lead,dados,evento:EV.id,estrategia:est},75000),1).then(r=>{
+      retry(()=>api({etapa:'semana',semana:b.n,lead,dados,evento:EV.id,estrategia:est},110000),1).then(r=>{
         feitas++; setStage(feitas>=ativos.length?4:(feitas*2>=ativos.length?3:2)); return r.data; })
     ));
     setStage(4); dots.forEach(d=>d.classList.add('ok'));
@@ -632,7 +734,10 @@ function renderResult(est, blocos, ativos){
       const cat = EV.cardapio && CAT[p.categoria] ? '<span class="badge cat">'+esc(CAT[p.categoria])+'</span>' : '';
       return '<article class="post"><div class="ph"><span class="pd">'+esc(weekdayOf(p._dm))+' · '+esc(p._dm)+'</span>'+
         '<span class="badge">'+esc(p.formato)+'</span>'+cat+'</div>'+
-        '<h4>'+esc(p.titulo)+'</h4><p>'+esc(p.legenda)+'</p>'+
+        '<h4>'+esc(p.titulo)+'</h4>'+
+        (p.gancho?'<p class="gancho"><span>Gancho</span>'+esc(p.gancho)+'</p>':'')+
+        (Array.isArray(p.roteiro)&&p.roteiro.length?'<div class="rot"><span>O que gravar</span><ol>'+p.roteiro.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div>':'')+
+        '<p class="leg"><span>Legenda</span>'+esc(p.legenda)+'</p>'+
         (p.cta?'<p class="cta"><em>CTA:</em> '+esc(p.cta)+'</p>':'')+
         (p.hashtags?'<p class="tags">'+esc(p.hashtags)+'</p>':'')+'</article>';
     }).join('');
