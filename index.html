@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="pt-BR" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google" content="notranslate">
+<title>Gerador de Calendário de Conteúdo | Spice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#fb7c4f; --orange-deep:#f2682f;
+  --pink:#fd3a92; --pink-deep:#d4216f;
+  --cream:#f6f2e6; --ink:#3b3c37; --ink-soft:#4b4c47;
+  --line:rgba(59,60,55,.16); --card:#ffffff;
+  --gold:#f5b400;
+  --display:'Anton',Impact,sans-serif; --body:'Archivo',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--cream);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;min-height:100vh}
+[hidden]{display:none!important}
+button{font-family:inherit;cursor:pointer}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--ink);color:var(--cream)}
+.logo{font-family:var(--display);font-size:26px;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.logo span{display:block;font-family:var(--body);font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--orange);margin-top:3px}
+.evtag{font-family:var(--body);font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--orange);color:#fff;padding:6px 12px;border-radius:99px;text-align:center}
+.evtag.gold{background:var(--gold);color:var(--ink)}
+main{padding:0 16px 56px}
+.wrap{max-width:680px;margin:0 auto}
+.wide{max-width:1000px;margin:0 auto}
+.hero{padding:28px 0 8px}
+.kicker{font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:8px}
+h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(34px,8vw,52px);line-height:1.02;letter-spacing:.01em}
+.hero p.sub{margin-top:12px;font-size:17px;color:var(--ink-soft);max-width:560px}
+.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:22px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--pink));transition:width .35s}
+.stepinfo{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:10px 0 4px}
+.step h2{font-family:var(--display);font-weight:400;font-size:26px;text-transform:uppercase;margin:6px 0 4px}
+.step .intro{margin-top:10px;background:#fff4ee;border:2px solid var(--orange);border-radius:14px;padding:14px 16px;font-weight:600}
+.step .nota{margin-top:16px;font-size:13px;color:var(--ink-soft)}
+.field{margin-top:20px}
+.field>label,.field>.lab{display:block;font-weight:700;font-size:15px;margin-bottom:9px}
+.field .hint{font-weight:500;color:var(--ink-soft);font-size:13px}
+input[type=text],input[type=tel],input[type=date]{width:100%;font:inherit;font-size:17px;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);outline:none;transition:border-color .15s}
+input:focus{border-color:var(--orange)}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{font-size:15px;font-weight:600;padding:11px 16px;border-radius:99px;border:2px solid var(--line);background:#fff;color:var(--ink);transition:all .12s;text-align:left;min-height:44px}
+.chip:hover{border-color:var(--orange)}
+.chip.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.nav{display:flex;gap:10px;margin-top:30px}
+.btn{font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;padding:16px 26px;border-radius:14px;border:2px solid var(--ink);background:var(--ink);color:var(--cream);flex:1;transition:transform .1s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);flex:0 0 auto}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.err{margin-top:12px;color:var(--pink-deep);font-weight:600;font-size:14px}
+.box{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:28px 22px;margin-top:28px}
+.center{text-align:center;padding-top:44px}
+.spin{width:54px;height:54px;border-radius:50%;border:6px solid var(--line);border-top-color:var(--orange);margin:0 auto 22px;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.dots{display:flex;gap:8px;justify-content:center;margin-top:18px}
+.dots i{width:34px;height:6px;border-radius:9px;background:var(--line);transition:background .3s}
+.dots i.ok{background:var(--orange)}
+
+/* resultado */
+.rhead{background:var(--ink);color:var(--cream);margin:0 -16px;padding:34px 16px 30px}
+.rhead .wide{display:flex;flex-direction:column;gap:6px}
+.rhead .kicker{color:var(--orange)}
+.rhead h1{color:#fff}
+.rhead p{color:rgba(246,242,230,.8);max-width:640px}
+.cards3{display:grid;gap:14px;grid-template-columns:1fr;margin-top:26px}
+.scard{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:20px}
+.scard h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:18px;color:var(--pink-deep);margin-bottom:8px;letter-spacing:.03em}
+.scard ul{padding-left:18px}
+.scard li{margin:3px 0}
+.sec{margin-top:40px}
+.sec>h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:28px}
+.week{margin-top:22px}
+.weekh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:3px solid var(--orange);padding-bottom:8px}
+.weekh b{font-family:var(--display);font-weight:400;font-size:22px;text-transform:uppercase;background:var(--orange);color:#fff;padding:2px 12px;border-radius:8px}
+.weekh span{font-weight:700;font-size:16px}
+.posts{display:grid;gap:12px;margin-top:14px;grid-template-columns:1fr}
+.post{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px 18px;break-inside:avoid}
+.ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.pd{font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.badge{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:var(--pink);color:#fff}
+.badge.cat{background:var(--ink)}
+.post h4{font-size:17px;font-weight:800;line-height:1.25;margin-bottom:6px}
+.post p{font-size:15px;color:var(--ink-soft)}
+.post .cta{margin-top:8px;font-weight:700;font-size:14px;color:var(--ink)}
+.post .cta em{font-style:normal;color:var(--orange-deep)}
+.post .tags{margin-top:8px;font-size:13px;color:var(--pink-deep);font-weight:600;word-break:break-word}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px}
+.cal .dh{font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;color:var(--ink-soft);padding:4px 0}
+.cal .c{background:var(--card);border:1px solid var(--line);border-radius:8px;min-height:58px;padding:5px 5px 6px;font-size:10.5px;line-height:1.25;overflow:hidden}
+.cal .c .n{font-weight:800;font-size:11px;color:var(--ink-soft);display:block;margin-bottom:2px}
+.cal .c.off{opacity:.35;background:transparent}
+.cal .c.has{background:#fff4ee;border-color:var(--orange)}
+.cal .c.has .n{color:var(--orange-deep)}
+.cal .c .f{display:block;font-weight:800;font-size:8px;letter-spacing:0;text-transform:uppercase;color:var(--pink-deep)}
+.cal .c .t{font-weight:600;word-break:break-word;display:none}
+.bonus{display:grid;gap:12px;grid-template-columns:1fr;margin-top:26px}
+.bcard{display:block;text-decoration:none;color:inherit;background:var(--gold);border-radius:16px;padding:18px 20px}
+.bcard b{font-family:var(--display);font-weight:400;font-size:20px;text-transform:uppercase;display:block}
+.final{margin-top:44px;background:var(--ink);color:var(--cream);border-radius:24px;padding:32px 24px;text-align:center}
+.final h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(26px,6vw,38px);line-height:1.08;color:#fff}
+.final p{margin:12px auto 0;max-width:520px;color:rgba(246,242,230,.85)}
+.final .deadline{display:inline-block;margin-top:16px;background:var(--gold);color:var(--ink);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:99px}
+.wa{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin-top:22px;background:#25d366;color:#0b2e17;font-weight:800;font-size:17px;letter-spacing:.03em;text-transform:uppercase;text-decoration:none;padding:17px 28px;border-radius:14px}
+.tools{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.tools .btn{flex:1 1 180px}
+.foot{margin-top:26px;font-size:12px;color:var(--ink-soft);text-align:center}
+@media (min-width:720px){
+  .cards3{grid-template-columns:repeat(3,1fr)}
+  .posts{grid-template-columns:1fr 1fr}
+  .bonus{grid-template-columns:1fr 1fr}
+  .cal .c{min-height:96px;padding:7px 8px;font-size:12px}
+  .cal .c .f{font-size:10px}
+  .cal .c .t{display:block}
+}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .top,.tools,.final .wa,.nopr{display:none!important}
+  body{background:#fff}
+  .final{background:#fff;color:var(--ink);border:2px solid var(--ink)}
+  .final h2{color:var(--ink)} .final p{color:var(--ink)}
+}
+</style>
+</head>
+<body class="notranslate">
+
+<header class="top">
+  <div class="logo">Spice<span>MARKETING GASTRONÔMICO · DEMO</span></div>
+  <div class="evtag" id="evtag" hidden></div>
+</header>
+
+<main>
+  <!-- Acesso encerrado / ainda não aberto -->
+  <section id="vBlocked" hidden>
+    <div class="wrap center">
+      <p class="kicker" id="blkKick"></p>
+      <h1 id="blkTitle"></h1>
+      <p class="sub" id="blkText" style="margin-top:14px;font-size:17px;color:var(--ink-soft)"></p>
+      <a class="wa" id="blkWa" href="#" target="_blank" rel="noopener">Falar com a Spice no WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- Formulário -->
+  <section id="vWizard" hidden>
+    <div class="wrap">
+      <div class="hero">
+        <p class="kicker" id="kick"></p>
+        <h1 id="h1"></h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <div class="bar"><i id="fill"></i></div>
+      <p class="stepinfo" id="stepinfo"></p>
+      <form id="stepbox" class="step" onsubmit="return false" autocomplete="off"></form>
+      <p class="err" id="err" hidden></p>
+      <div class="nav">
+        <button type="button" class="btn ghost" id="back">Voltar</button>
+        <button type="button" class="btn primary" id="next" disabled>Continuar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gerando -->
+  <section id="vLoading" hidden>
+    <div class="wrap center">
+      <div class="spin"></div>
+      <h1 style="font-size:clamp(28px,7vw,40px)" id="ldTitle">Montando seu calendário</h1>
+      <p class="sub" id="ldMsg" style="margin-top:12px;font-size:17px;color:var(--ink-soft)">Analisando o perfil do seu restaurante</p>
+      <div class="dots"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <!-- Falha na geração -->
+  <section id="vFail" hidden>
+    <div class="wrap center">
+      <h1 style="font-size:clamp(28px,7vw,40px)">Algo deu errado</h1>
+      <p class="sub" style="margin-top:12px;font-size:17px;color:var(--ink-soft)">Suas respostas continuam aqui. Tente gerar de novo em alguns segundos.</p>
+      <div class="nav" style="max-width:420px;margin-left:auto;margin-right:auto">
+        <button type="button" class="btn primary" id="retry">Tentar de novo</button>
+      </div>
+      <a class="wa" id="failWa" href="#" target="_blank" rel="noopener">Pedir ajuda no WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- Resultado -->
+  <section id="vResult" hidden></section>
+</main>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO (edite aqui)
+   ============================================================ */
+const CONFIG = {
+  whatsapp: '5521999766333',            // WhatsApp comercial da Spice (DDI+DDD+número)
+  api: '/api/spice',                    // API na Vercel (guarda a chave da IA e salva os contatos)
+  validadeOfertaDias: 7                 // validade da isca comercial após o evento
+};
+
+/* Cada link de bônus só aparece se estiver preenchido. */
+const EVENTOS = {
+  mindhub: {
+    id:'mindhub', dia:'2026-10-19', nomeCurto:'aula da MindHub', tag:'Kit do dono que aparece', gold:false,
+    kicker:'Aula MindHub · Kit do dono que aparece',
+    titulo:'Seu kit do dono que aparece',
+    sub:'Comece pelo calendário de conteúdo: responda em 2 minutos e receba um calendário de conteúdo no período que você escolher.',
+    bonus:[
+      {titulo:'PDF: 7 ganchos que fazem restaurante bombar nos Reels', url:''},
+      {titulo:'Vídeo da Isabela: o resumo da aula em 30 segundos', url:''}
+    ],
+    ctaTitulo:'Quer ver isso rodando no seu restaurante?',
+    ctaTexto:'Na reunião de diagnóstico a gente analisa o seu perfil e mostra o que ajustar primeiro. Para quem assistiu à aula, a condição da consultoria de marketing é exclusiva.',
+    ctaBtn:'Agendar meu diagnóstico'
+  },
+  jotaja: {
+    id:'jotaja', dia:'2026-10-27', nomeCurto:'JOTAJA', tag:'Cardápio de conteúdo', gold:false,
+    kicker:'JOTAJA · Cardápio de conteúdo',
+    titulo:'Monte o cardápio de conteúdo da sua hamburgueria',
+    sub:'Entradas para atrair, pratos principais para vender e sobremesas para fidelizar. Responda e receba o seu em 2 minutos.',
+    tipoPadrao:'Hamburgueria', cardapio:true,
+    bonus:[],
+    ctaTitulo:'Quer o cardápio de conteúdo executado por quem entende de hambúrguer?',
+    ctaTexto:'Os combos de engenharia de cardápio, produção de conteúdo e consultoria têm condição exclusiva para quem passou no nosso stand.',
+    ctaBtn:'Quero a condição do evento'
+  },
+  delivery: {
+    id:'delivery', dia:'2026-10-28', nomeCurto:'MindHub Delivery', tag:'Ticket dourado', gold:true,
+    kicker:'MindHub · Ticket dourado',
+    titulo:'Resgate seu calendário de conteúdo',
+    sub:'Presente do nosso stand: um calendário de conteúdo pensado para vender mais no delivery.',
+    bonus:[
+      {titulo:'PDF: os principais ganchos de conteúdo para restaurantes', url:''}
+    ],
+    ctaTitulo:'Quer transformar esse calendário em pedidos?',
+    ctaTexto:'Na reunião de diagnóstico a gente olha o seu delivery e o seu Instagram e mostra por onde começar. A condição da consultoria de marketing é exclusiva para quem esteve no evento.',
+    ctaBtn:'Agendar meu diagnóstico'
+  },
+  geral: {
+    id:'geral', dia:null, nomeCurto:'Spice', tag:'', gold:false,
+    kicker:'Ferramenta gratuita Spice',
+    titulo:'Calendário de conteúdo para o seu restaurante',
+    sub:'Responda em 2 minutos e receba um calendário de conteúdo pronto para o Instagram do seu restaurante.',
+    bonus:[],
+    ctaTitulo:'Quer que a Spice execute esse calendário com você?',
+    ctaTexto:'Na reunião de diagnóstico a gente analisa o seu perfil e mostra o que ajustar primeiro.',
+    ctaBtn:'Agendar meu diagnóstico'
+  }
+};
+
+/* ============================================================
+   FORMULÁRIO
+   ============================================================ */
+const STEPS = [
+  {titulo:'Seu restaurante', campos:[
+    {id:'tipo', tipo:'chips', label:'Tipo de restaurante', opts:['Hamburgueria','Pizzaria','Restaurante','Bar','Japonês','Confeitaria ou cafeteria','Dark kitchen','Steakhouse ou churrascaria','Outro']},
+    {id:'operacao', tipo:'chips', label:'Como você vende hoje?', opts:['Só salão','Salão e delivery','Só delivery próprio','Delivery em apps','Dark kitchen']},
+    {id:'tempo', tipo:'chips', label:'Há quanto tempo o restaurante existe?', opts:['Menos de 1 ano','1 a 3 anos','3 a 5 anos','Mais de 5 anos']},
+    {id:'faixa', tipo:'chips', label:'Quem é seu cliente ideal?', opts:['Jovens (18 a 29)','Adultos (30 a 45)','Famílias','Todas as idades']},
+    {id:'dor', tipo:'chips', label:'Qual o seu maior problema hoje?', opts:['Salão vazio em dias fracos','Poucos pedidos no delivery','Dependo dos apps e das taxas','Pouca gente me conhece','Cliente não volta','Ticket médio baixo']},
+    {id:'descoberta', tipo:'chips', label:'Como seus clientes descobrem você hoje?', opts:['Indicação boca a boca','Instagram','Apps de delivery','Google Maps','Passam na frente','Ainda quase ninguém descobre']}
+  ]},
+  {titulo:'Posicionamento', campos:[
+    {id:'ticket', tipo:'chips', label:'Ticket médio por pessoa', opts:['Até R$ 30','R$ 30 a R$ 60','R$ 60 a R$ 100','Acima de R$ 100']},
+    {id:'diferencial', tipo:'chips', label:'O que mais diferencia o seu restaurante?', opts:['Sabor e receita própria','Ingredientes premium','Atendimento','Preço justo','Ambiente','Rapidez na entrega']},
+    {id:'tom', tipo:'chips', label:'Como você quer soar nas redes?', opts:['Descontraído e divertido','Aconchegante e próximo','Sofisticado','Direto e provocativo']},
+    {id:'vender', tipo:'chips', label:'O que você mais quer vender agora?', opts:['Meu prato campeão','Combos e promoções','Item novo do cardápio','Mesas no salão','Delivery próprio','Uma data ou evento especial']},
+    {id:'concorrencia', tipo:'chips', label:'Quem é sua maior concorrência?', opts:['Restaurantes do bairro','Redes grandes','Apps de delivery','Não sei dizer']}
+  ]},
+  {titulo:'Seu Instagram hoje', campos:[
+    {id:'status', tipo:'chips', label:'Como está o seu perfil?', opts:['Ainda não tenho perfil','Menos de 1 mil seguidores','1 a 5 mil','5 a 20 mil','Mais de 20 mil']},
+    {id:'naoMostrar', tipo:'chips', label:'O que você NÃO quer mostrar?', opts:['Posso mostrar tudo','A cozinha','Meu rosto','Preços','Minha equipe']},
+    {id:'funcionou', tipo:'chips', label:'Que tipo de post já deu mais resultado?', opts:['Vídeo do prato','Bastidores','Promoção','Depoimento de cliente','Ainda não sei','Nunca postei de forma consistente']}
+  ]},
+  {titulo:'Estratégia', campos:[
+    {id:'objetivo', tipo:'chips', label:'Qual o seu objetivo agora?', opts:['Encher o salão','Mais pedidos no delivery próprio','Depender menos dos apps','Fazer o cliente voltar','Lançar cardápio ou item novo','Ser referência no bairro']},
+    {id:'obstaculo', tipo:'chips', label:'O que mais te trava no conteúdo?', opts:['Falta de tempo','Não sei o que postar','Tenho vergonha de aparecer','Não sei editar','A equipe não ajuda']},
+    {id:'aparecer', tipo:'chips', label:'Quanto você quer aparecer?', opts:['Prefiro não aparecer','Apareço com moderação','Quero aparecer bastante']}
+  ]},
+  {titulo:'Período e formatos', campos:[
+    {id:'inicio', tipo:'date', label:'Em que dia você quer começar?'},
+    {id:'fim', tipo:'date', label:'Até que dia o calendário deve ir?', hint:'(período de no máximo 30 dias)'},
+    {id:'total', tipo:'chips', label:'Quantos conteúdos no total?', hint:'(no máximo 15, sendo 1 por dia)', opts:['3 conteúdos','5 conteúdos','8 conteúdos','10 conteúdos','12 conteúdos','15 conteúdos']},
+    {id:'formatos', tipo:'multi', label:'Quais formatos você prefere?', hint:'(pode marcar mais de um)', opts:['Reels','Carrossel','Foto','Stories']}
+  ]},
+  /* Última etapa: contato. O calendário só é liberado depois dela. */
+  {titulo:'Libere seu calendário', contato:true,
+   intro:'Pronto! Já temos tudo para montar o seu calendário. Diga quem é você para liberar o resultado.',
+   nota:'Usamos seus dados só para te identificar e falar com você sobre o seu calendário. Nada de spam.',
+   campos:[
+    {id:'nome', tipo:'text', label:'Seu nome', ph:'Como podemos te chamar?'},
+    {id:'whatsapp', tipo:'tel', label:'Seu WhatsApp com DDD', ph:'(21) 99999-9999'},
+    {id:'instagram', tipo:'text', label:'@ do Instagram do restaurante', ph:'@seurestaurante'},
+    {id:'perfil', tipo:'chips', label:'Qual o seu papel?', opts:['Sou dono ou sócio','Sou gerente ou decisor','Trabalho no restaurante','Só estou curioso']}
+  ]}
+];
+const LIM = {dias:30, conteudos:15};   // limites do período personalizado
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const WEEK = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+function todaySP(){
+  return new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'}); // YYYY-MM-DD
+}
+function isoToDate(iso){ return new Date(iso+'T12:00:00'); }
+function addDays(iso,n){ const d=isoToDate(iso); d.setDate(d.getDate()+n); return d; }
+function fmtDM(d){ return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
+function fmtISOBR(iso){ const [y,m,d]=iso.split('-'); return d+'/'+m; }
+function nextMondayAfter(iso){
+  const d=isoToDate(iso); const dow=d.getDay();
+  const add=((8-dow)%7)||7;
+  d.setDate(d.getDate()+add);
+  return d;
+}
+function diffDays(a,b){ return Math.round((isoToDate(b)-isoToDate(a))/86400000); }
+function toISO(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function show(id){ ['vBlocked','vWizard','vLoading','vFail','vResult'].forEach(x=>$(x).hidden = x!==id); window.scrollTo(0,0); }
+function waLink(msg){ return 'https://wa.me/'+CONFIG.whatsapp+'?text='+encodeURIComponent(msg); }
+
+/* ============================================================
+   EVENTO E VALIDADE
+   ============================================================ */
+const params = new URLSearchParams(location.search);
+const evKey = (params.get('evento')||'geral').toLowerCase();
+const EV = EVENTOS[evKey] || EVENTOS.geral;
+const PREVIEW = params.has('teste');   // ?teste=1 abre o link fora do dia do evento
+
+const S = {};      // respostas
+let stepIdx = 0;
+let leadSent = false;
+let busy = false;
+const SESSAO = (window.crypto&&crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2);
+
+function init(){
+  if(EV.tag){ const t=$('evtag'); t.textContent=EV.tag; t.hidden=false; if(EV.gold) t.classList.add('gold'); }
+  $('kick').textContent = EV.kicker;
+  $('h1').textContent = EV.titulo;
+  $('sub').textContent = EV.sub;
+  document.title = EV.titulo+' | Spice';
+
+  if(EV.dia && !PREVIEW){
+    const hoje = todaySP();
+    if(hoje < EV.dia){
+      return blocked('Ainda não abriu','Este acesso abre em '+fmtISOBR(EV.dia),
+        'O gerador fica disponível somente no dia do evento. Volte em '+fmtISOBR(EV.dia)+'.',
+        'Oi! Quero saber mais sobre o calendário de conteúdo da Spice.');
+    }
+    if(hoje > EV.dia){
+      return blocked('Acesso encerrado','Este link era válido só no dia do evento',
+        'Mas você ainda pode falar com a gente: se esteve no evento, a condição exclusiva de diagnóstico vale por '+CONFIG.validadeOfertaDias+' dias após a data.',
+        'Oi! Estive no evento ('+EV.nomeCurto+') e quero saber da condição exclusiva e do diagnóstico.');
+    }
+  }
+  if(EV.tipoPadrao) S.tipo = EV.tipoPadrao;
+  show('vWizard');
+  renderStep();
+}
+function blocked(kick,title,text,msg){
+  $('blkKick').textContent=kick; $('blkTitle').textContent=title; $('blkText').textContent=text;
+  $('blkWa').href = waLink(msg);
+  show('vBlocked');
+}
+
+/* ============================================================
+   RENDER DO FORMULÁRIO
+   ============================================================ */
+function renderStep(){
+  const st = STEPS[stepIdx];
+  $('fill').style.width = ((stepIdx)/STEPS.length*100)+'%';
+  $('stepinfo').textContent = 'Etapa '+(stepIdx+1)+' de '+STEPS.length;
+  $('back').style.visibility = stepIdx===0?'hidden':'visible';
+  $('next').textContent = st.contato ? 'Liberar meu calendário' : 'Continuar';
+  $('err').hidden = true;
+
+  let h = '<h2>'+esc(st.titulo)+'</h2>';
+  if(st.intro) h += '<p class="intro">'+esc(st.intro)+'</p>';
+  st.campos.forEach(c=>{
+    h += '<div class="field">';
+    if(c.tipo==='text' || c.tipo==='tel'){
+      h += '<label for="f_'+c.id+'">'+esc(c.label)+'</label>'+
+           '<input type="'+(c.tipo==='tel'?'tel':'text')+'" id="f_'+c.id+'" data-f="'+c.id+'" placeholder="'+esc(c.ph)+'" value="'+esc(S[c.id]||'')+'"'+
+           (c.tipo==='tel'?' inputmode="tel" autocomplete="tel"':'')+'>';
+    } else if(c.tipo==='date'){
+      const mn = c.id==='inicio' ? todaySP() : (S.inicio||todaySP());
+      const mx = c.id==='fim' && S.inicio ? toISO(addDays(S.inicio,LIM.dias-1)) : '';
+      h += '<label for="f_'+c.id+'">'+esc(c.label)+(c.hint?' <span class="hint">'+esc(c.hint)+'</span>':'')+'</label>'+
+           '<input type="date" id="f_'+c.id+'" data-f="'+c.id+'" min="'+mn+'"'+(mx?' max="'+mx+'"':'')+' value="'+esc(S[c.id]||'')+'">';
+    } else {
+      h += '<span class="lab">'+esc(c.label)+(c.hint?' <span class="hint">'+esc(c.hint)+'</span>':'')+'</span><div class="chips">';
+      c.opts.forEach(o=>{
+        const on = c.tipo==='multi' ? (S[c.id]||[]).includes(o) : S[c.id]===o;
+        h += '<button type="button" class="chip'+(on?' on':'')+'" data-c="'+c.id+'" data-t="'+c.tipo+'" data-v="'+esc(o)+'">'+esc(o)+'</button>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  if(st.nota) h += '<p class="nota">'+esc(st.nota)+'</p>';
+  $('stepbox').innerHTML = h;
+  refreshNext();
+}
+
+function fieldOk(c){
+  const v = S[c.id];
+  if(c.id==='nome') return !!v && v.trim().length>=2;
+  if(c.id==='instagram') return !!v && v.replace('@','').trim().length>=2;
+  if(c.id==='whatsapp') return !!v && v.replace(/\D/g,'').length>=10;
+  if(c.tipo==='multi') return Array.isArray(v) && v.length>0;
+  return !!v;
+}
+function periodError(){
+  if(!S.inicio||!S.fim) return '';
+  if(S.inicio<todaySP()) return 'A data inicial não pode ser no passado.';
+  if(S.fim<S.inicio) return 'A data final precisa ser depois da inicial.';
+  const dias = diffDays(S.inicio,S.fim)+1;
+  if(dias>LIM.dias) return 'O período pode ter no máximo '+LIM.dias+' dias. Você escolheu '+dias+'.';
+  const t = parseInt(S.total,10);
+  if(t && t>dias) return 'Você pediu '+t+' conteúdos em '+dias+' dia(s). Aumente o período ou escolha menos conteúdos (1 por dia no máximo).';
+  return '';
+}
+function stepOk(){
+  const st = STEPS[stepIdx];
+  return st.campos.every(fieldOk) && !(st.campos.some(c=>c.tipo==='date') && periodError());
+}
+function refreshNext(){
+  const er = $('err');
+  const pe = STEPS[stepIdx].campos.some(c=>c.tipo==='date') ? periodError() : '';
+  if(pe){ er.textContent = pe; er.hidden = false; } else er.hidden = true;
+  $('next').disabled = busy || !stepOk();
+}
+
+$('stepbox').addEventListener('input',e=>{
+  const f = e.target.dataset.f; if(!f) return;
+  let v = e.target.value;
+  if(f==='instagram'){ v = v.replace(/\s/g,''); if(v && v[0]!=='@') v='@'+v; e.target.value=v; }
+  S[f]=v;
+  if(f==='inicio'){
+    const fim = $('f_fim');
+    if(fim && v){ fim.min = v; fim.max = toISO(addDays(v,LIM.dias-1)); }
+  }
+  refreshNext();
+});
+$('stepbox').addEventListener('click',e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  const id=b.dataset.c, v=b.dataset.v;
+  if(b.dataset.t==='multi'){
+    const a = S[id]||[]; const i=a.indexOf(v);
+    if(i>=0) a.splice(i,1); else a.push(v);
+    S[id]=a; b.classList.toggle('on');
+  } else {
+    S[id]=v;
+    b.parentNode.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));
+  }
+  refreshNext();
+});
+$('back').addEventListener('click',()=>{ if(stepIdx>0){ stepIdx--; renderStep(); window.scrollTo(0,0);} });
+$('next').addEventListener('click',async()=>{
+  if(!stepOk()||busy) return;
+  if(STEPS[stepIdx].contato && !leadSent){
+    busy=true; $('next').disabled=true; $('next').textContent='Liberando...';
+    await captureLead();
+    busy=false;
+  }
+  if(stepIdx < STEPS.length-1){ stepIdx++; salvarParcial(); renderStep(); window.scrollTo(0,0); }
+  else generate();
+});
+
+/* ============================================================
+   API
+   ============================================================ */
+function leadPayload(){
+  const dono = S.perfil==='Sou dono ou sócio' || S.perfil==='Sou gerente ou decisor';
+  return {nome:S.nome.trim(), instagram:S.instagram.trim(), whatsapp:S.whatsapp.replace(/\D/g,''),
+          tipo:S.tipo, perfil:S.perfil, icp:dono, evento:EV.id, sessao:SESSAO};
+}
+
+/* Resposta parcial: salva o que a pessoa já preencheu, mesmo se ela desistir antes do contato.
+   Vai a cada etapa concluída e quando a página é fechada ou fica em segundo plano.
+   O servidor deve agrupar pelo campo "sessao" (o lead completo usa a mesma sessão). */
+let ultimoParcial = '';
+function salvarParcial(){
+  if(leadSent) return;
+  const respostas = {};
+  Object.keys(S).forEach(k=>{ const v=S[k]; if(Array.isArray(v)?v.length:String(v||'').trim()) respostas[k]=v; });
+  if(!Object.keys(respostas).length) return;
+  const corpo = JSON.stringify({etapa:'parcial', sessao:SESSAO, evento:EV.id,
+    etapaAtual:stepIdx+1, totalEtapas:STEPS.length, respostas, atualizadoEm:new Date().toISOString()});
+  if(corpo.replace(/"atualizadoEm":"[^"]*"/,'')===ultimoParcial) return;
+  ultimoParcial = corpo.replace(/"atualizadoEm":"[^"]*"/,'');
+  try{
+    const blob = new Blob([corpo],{type:'application/json'});
+    if(!(navigator.sendBeacon && navigator.sendBeacon(CONFIG.api, blob)))
+      fetch(CONFIG.api,{method:'POST',headers:{'Content-Type':'application/json'},body:corpo,keepalive:true}).catch(()=>{});
+  }catch(e){ /* nunca atrapalha o formulário */ }
+}
+addEventListener('pagehide', salvarParcial);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') salvarParcial(); });
+/* Chamada real. Se a IA ainda não estiver configurada no servidor (503 + demo), usa o calendário de exemplo. */
+async function api(body, timeout){
+  const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(), timeout||30000);
+  try{
+    const r = await fetch(CONFIG.api,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctrl.signal});
+    const j = await r.json().catch(()=>({}));
+    if(r.status===503 && j.demo) return demoApi(body);
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    return j;
+  } finally { clearTimeout(t); }
+}
+
+/* Calendário de exemplo (usado só enquanto a chave da IA não está configurada). */
+async function demoApi(body){
+  await new Promise(r=>setTimeout(r,600));
+  if(body.etapa==='lead') return {ok:true};
+  const pl = plano(body.dados.inicio, body.dados.fim, body.dados.total);
+  if(body.etapa==='estrategia'){
+    return {data:{posicionamento:'O lugar do bairro onde o hambúrguer é feito na hora, com ingrediente de verdade.',
+      tom_de_voz:'Descontraído e direto, com humor leve e muita fome.',
+      pilares:['Prato principal que vende','Bastidores da chapa','Prova social dos clientes','Combos e promoções'],
+      temas_semanais:['Apresente a casa','Mostre o processo','Venda o combo','Fidelize quem já veio','Última chamada'].slice(0,pl.length)}};
+  }
+  const b = pl.find(x=>x.n===body.semana);
+  const len = diffDays(b.isoIni,b.isoFim)+1;
+  const fmts = body.dados.formatos&&body.dados.formatos.length?body.dados.formatos:['Reels','Carrossel','Foto'];
+  const ideias=[
+   ['Esse é o smash que a gente não para de vender','Mostre a chapa, o som e o queijo derretendo em 15 segundos.','Chame no direct e peça o seu','entrada'],
+   ['3 motivos para pedir o combo da casa','Compare o combo com o pedido avulso e mostre a economia.','Peça pelo link da bio','prato_principal'],
+   ['Do pão ao molho: o que ninguém vê','Bastidores rápidos da cozinha antes da abertura.','Salve para pedir no fim de semana','entrada'],
+   ['Cliente real, burger real','Reposte o depoimento de quem pediu e mostre o prato.','Marque quem divide o burger com você','sobremesa'],
+   ['O hambúrguer de sexta que esgota','Teaser do especial de sexta com contagem regressiva.','Reserve o seu no WhatsApp','prato_principal'],
+   ['Sobremesa que fecha a noite','Close do milk-shake ou brownie com a luz do balcão.','Conta nos comentários: salgado ou doce?','sobremesa']];
+  const posts=[]; for(let k=0;k<b.qtd;k++){
+    const off=Math.floor(k*len/b.qtd); const d=addDays(b.isoIni,off); const id=ideias[(k+b.n)%ideias.length];
+    posts.push({data:fmtDM(d),formato:fmts[k%fmts.length],titulo:id[0],legenda:id[1],cta:id[2],hashtags:'#hamburguerartesanal #rj #comidaderua',categoria:id[3]});
+  }
+  return {data:{tema:['Apresente a casa','Mostre o processo','Venda o combo','Fidelize quem já veio','Última chamada'][b.n-1],posts}};
+}
+async function captureLead(){
+  try{ await api({etapa:'lead', lead:leadPayload()}, 6000); leadSent=true; }
+  catch(e){ /* não bloqueia o lead: o WhatsApp é reenviado junto com a geração */ }
+}
+async function retry(fn,n){ let last; for(let i=0;i<=n;i++){ try{ return await fn(); }catch(e){ last=e; await new Promise(r=>setTimeout(r,900)); } } throw last; }
+
+function dadosPayload(){
+  return {tipo:S.tipo, operacao:S.operacao, tempo:S.tempo, faixa:S.faixa, dor:S.dor, descoberta:S.descoberta,
+    ticket:S.ticket, diferencial:S.diferencial, tom:S.tom, vender:S.vender, concorrencia:S.concorrencia,
+    status:S.status, naoMostrar:S.naoMostrar, funcionou:S.funcionou, objetivo:S.objetivo,
+    obstaculo:S.obstaculo, aparecer:S.aparecer, formatos:S.formatos,
+    inicio:S.inicio, fim:S.fim, total:parseInt(S.total,10)};
+}
+
+/* Divide o período em blocos de até 7 dias e distribui os conteúdos (mesma regra do servidor). */
+function plano(inicio,fim,total){
+  const dias = diffDays(inicio,fim)+1;
+  const blocos=[]; for(let s=0;s<dias;s+=7) blocos.push({n:blocos.length+1, ini:s, len:Math.min(7,dias-s)});
+  const raw = blocos.map(b=>total*b.len/dias);
+  const q = raw.map(Math.floor); let resto = total-q.reduce((a,b)=>a+b,0);
+  const ordem = raw.map((r,i)=>[r-Math.floor(r),i]).sort((a,b)=>b[0]-a[0]);
+  for(let k=0;k<ordem.length&&resto>0;k++,resto--) q[ordem[k][1]]++;
+  return blocos.map((b,i)=>({n:b.n, qtd:q[i], isoIni:toISO(addDays(inicio,b.ini)), isoFim:toISO(addDays(inicio,b.ini+b.len-1))}));
+}
+
+/* ============================================================
+   GERAÇÃO
+   ============================================================ */
+const MSGS = ['Analisando o perfil do seu restaurante','Definindo posicionamento e pilares','Montando os seus conteúdos','Revisando o calendário','Finalizando'];
+let lastRun = null;
+
+async function generate(){
+  show('vLoading');
+  const dots = document.querySelectorAll('.dots i'); dots.forEach(d=>d.classList.remove('ok'));
+  const setStage = k=>{ $('ldMsg').textContent=MSGS[k]; for(let i=0;i<=k-1&&i<dots.length;i++) dots[i].classList.add('ok'); };
+  setStage(0);
+  const lead = leadPayload(); const dados = dadosPayload();
+  const ativos = plano(S.inicio,S.fim,dados.total).filter(b=>b.qtd>0);
+  lastRun = true;
+  try{
+    const est = (await retry(()=>api({etapa:'estrategia',lead,dados,evento:EV.id},45000),1)).data;
+    setStage(2);
+    let feitas = 0;
+    const blocos = await Promise.all(ativos.map(b =>
+      retry(()=>api({etapa:'semana',semana:b.n,lead,dados,evento:EV.id,estrategia:est},75000),1).then(r=>{
+        feitas++; setStage(feitas>=ativos.length?4:(feitas*2>=ativos.length?3:2)); return r.data; })
+    ));
+    setStage(4); dots.forEach(d=>d.classList.add('ok'));
+    renderResult(est, blocos, ativos);
+  }catch(e){
+    console.error(e);
+    $('failWa').href = waLink('Oi! Tentei gerar o calendário de conteúdo mas deu erro. Pode me ajudar? Sou '+S.nome+' ('+S.instagram+').');
+    show('vFail');
+  }
+}
+$('retry').addEventListener('click',()=>{ if(lastRun) generate(); });
+
+/* ============================================================
+   RESULTADO
+   ============================================================ */
+const CAT = {entrada:'Entrada · atração', prato_principal:'Prato principal · vende', sobremesa:'Sobremesa · fidelização'};
+
+function normDM(s){
+  const m = String(s||'').match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
+  return m ? pad(+m[1])+'/'+pad(+m[2]) : '';
+}
+function indexOfDM(dm){
+  const dias = diffDays(S.inicio,S.fim)+1;
+  for(let i=0;i<dias;i++){ if(fmtDM(addDays(S.inicio,i))===dm) return i; }
+  return -1;
+}
+function weekdayOf(dm){ const i=indexOfDM(dm); return i<0?'':WEEK[addDays(S.inicio,i).getDay()]; }
+
+function renderResult(est, blocos, ativos){
+  const nome = esc(S.nome.split(' ')[0]);
+  const dias = diffDays(S.inicio,S.fim)+1;
+  const postsByDate = {}; let totalPosts = 0;
+  const semanasHtml = blocos.map((sem,idx)=>{
+    const meta = ativos[idx];
+    const posts = (Array.isArray(sem.posts)?sem.posts:[]).map(p=>({...p, _dm:normDM(p.data)}))
+      .filter(p=>indexOfDM(p._dm)>=0)
+      .filter((p,i,arr)=>arr.findIndex(q=>q._dm===p._dm)===i)       // 1 conteúdo por dia
+      .sort((a,b)=>indexOfDM(a._dm)-indexOfDM(b._dm));
+    posts.forEach(p=>{ postsByDate[p._dm]=p; totalPosts++; });
+    const cards = posts.map(p=>{
+      const cat = EV.cardapio && CAT[p.categoria] ? '<span class="badge cat">'+esc(CAT[p.categoria])+'</span>' : '';
+      return '<article class="post"><div class="ph"><span class="pd">'+esc(weekdayOf(p._dm))+' · '+esc(p._dm)+'</span>'+
+        '<span class="badge">'+esc(p.formato)+'</span>'+cat+'</div>'+
+        '<h4>'+esc(p.titulo)+'</h4><p>'+esc(p.legenda)+'</p>'+
+        (p.cta?'<p class="cta"><em>CTA:</em> '+esc(p.cta)+'</p>':'')+
+        (p.hashtags?'<p class="tags">'+esc(p.hashtags)+'</p>':'')+'</article>';
+    }).join('');
+    const tema = sem.tema || (est.temas_semanais&&est.temas_semanais[meta.n-1]) || '';
+    const faixa = fmtDM(isoToDate(meta.isoIni))+' a '+fmtDM(isoToDate(meta.isoFim));
+    return '<div class="week"><div class="weekh"><b>Semana '+meta.n+'</b><span>'+esc(faixa)+(tema?' · '+esc(tema):'')+'</span></div><div class="posts">'+cards+'</div></div>';
+  }).join('');
+
+  // Calendário do período: começa na segunda anterior ao início e termina no domingo seguinte ao fim
+  const gi = addDays(S.inicio, -((isoToDate(S.inicio).getDay()+6)%7));
+  const gf = addDays(S.fim, (7-isoToDate(S.fim).getDay())%7);
+  const nCel = Math.round((gf-gi)/86400000)+1;
+  let grid = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(d=>'<div class="dh">'+d+'</div>').join('');
+  for(let i=0;i<nCel;i++){
+    const d = new Date(gi); d.setDate(gi.getDate()+i);
+    const iso = toISO(d); const dentro = iso>=S.inicio && iso<=S.fim;
+    const p = dentro ? postsByDate[fmtDM(d)] : null;
+    const label = (d.getDate()===1||i===0) ? d.getDate()+' '+MESES[d.getMonth()] : d.getDate();
+    grid += '<div class="c'+(p?' has':'')+(dentro?'':' off')+'"><span class="n">'+label+'</span>'+
+      (p?'<span class="f">'+esc(p.formato)+'</span><span class="t">'+esc(p.titulo)+'</span>':'')+'</div>';
+  }
+
+  const pilares = (est.pilares||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+  const bonus = (EV.bonus||[]).filter(b=>b.url).map(b=>'<a class="bcard" href="'+esc(b.url)+'" target="_blank" rel="noopener"><b>Bônus</b>'+esc(b.titulo)+'</a>').join('');
+
+  // Validade da isca comercial: data do evento + 7 dias
+  const base = (EV.dia && !PREVIEW) ? EV.dia : todaySP();
+  const validade = EV.dia ? fmtDM(addDays(base, CONFIG.validadeOfertaDias)) : '';
+  const msg = 'Oi! Sou '+S.nome.trim()+' do '+S.instagram.trim()+'. Gerei meu calendário de conteúdo'+(EV.dia?' no evento ('+EV.nomeCurto+')':'')+' e quero agendar o diagnóstico.';
+
+  $('vResult').innerHTML =
+    '<div class="rhead"><div class="wide"><p class="kicker">Calendário de conteúdo · '+fmtDM(isoToDate(S.inicio))+' a '+fmtDM(isoToDate(S.fim))+'</p>'+
+    '<h1>'+nome+', este é o seu calendário</h1>'+
+    '<p>Para '+esc(S.instagram)+' · '+esc(S.tipo)+'. '+totalPosts+' conteúdos em '+dias+' dias, pensados para o seu objetivo: '+esc(S.objetivo.toLowerCase())+'.</p></div></div>'+
+    '<div class="wide">'+
+    '<div class="cards3">'+
+      '<div class="scard"><h3>Posicionamento</h3><p>'+esc(est.posicionamento)+'</p></div>'+
+      '<div class="scard"><h3>Tom de voz</h3><p>'+esc(est.tom_de_voz)+'</p></div>'+
+      '<div class="scard"><h3>Pilares de conteúdo</h3><ul>'+pilares+'</ul></div>'+
+    '</div>'+
+    (bonus?'<div class="bonus">'+bonus+'</div>':'')+
+    '<div class="sec"><h2>Seus conteúdos</h2>'+semanasHtml+'</div>'+
+    '<div class="sec"><h2>Visão do período</h2><div class="cal">'+grid+'</div></div>'+
+    '<div class="tools nopr"><button class="btn" id="printBtn">Salvar em PDF</button></div>'+
+    '<div class="final"><h2>'+esc(EV.ctaTitulo)+'</h2><p>'+esc(EV.ctaTexto)+'</p>'+
+      (validade?'<span class="deadline">Condição válida até '+validade+'</span><br>':'')+
+      '<a class="wa" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+esc(EV.ctaBtn)+'</a></div>'+
+    '<p class="foot">Calendário gerado com IA a partir das suas respostas. Revise cada post antes de publicar.</p>'+
+    '</div>';
+  show('vResult');
+  const pb = $('printBtn'); if(pb) pb.addEventListener('click',()=>window.print());
+}
+
+init();
+</script>
+</body>
+</html>

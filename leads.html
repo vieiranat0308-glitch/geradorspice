@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Contatos do Calendário | Spice</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#fb7c4f;--pink-deep:#d4216f;--cream:#f6f2e6;--ink:#3b3c37;--ink-soft:#4b4c47;--line:rgba(59,60,55,.16);--ok:#1f8a4c;--gold:#f5b400}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;font-size:15px;line-height:1.45}
+header{background:var(--ink);color:var(--cream);padding:14px 16px;font-family:'Anton',Impact,sans-serif;font-size:24px;text-transform:uppercase;letter-spacing:.04em}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-family:'Anton',Impact,sans-serif;font-weight:400;text-transform:uppercase;font-size:30px}
+.login{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+input,select{font:inherit;padding:11px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+input{flex:1 1 220px}
+button{font:inherit;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:11px 18px;border-radius:12px;border:2px solid var(--ink);background:var(--ink);color:var(--cream);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+.msg{margin-top:12px;font-weight:600;color:var(--pink-deep)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.stat{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 16px;min-width:140px}
+.stat b{display:block;font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:28px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.list{margin-top:14px;display:grid;gap:10px}
+.item{background:#fff;border:2px solid var(--line);border-radius:14px;padding:14px 16px}
+.top{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:var(--gold);color:var(--ink)}
+.pill.ok{background:var(--ok);color:#fff}
+.pill.ev{background:var(--ink);color:#fff}
+.nome{font-weight:800;font-size:17px}
+.when{color:var(--ink-soft);font-size:13px;margin-left:auto}
+.contato{margin-top:6px;display:flex;gap:14px;flex-wrap:wrap}
+.contato a{color:var(--pink-deep);font-weight:700}
+details{margin-top:8px}
+summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--ink-soft)}
+dl{display:grid;grid-template-columns:minmax(120px,200px) 1fr;gap:4px 12px;margin-top:8px;font-size:14px}
+dt{color:var(--ink-soft)}
+dd{min-width:0;word-break:break-word}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>Spice · Contatos</header>
+<main>
+  <h1>Contatos do calendário de conteúdo</h1>
+  <form class="login" id="login">
+    <input type="password" id="token" placeholder="Senha de acesso (SPICE_ADMIN_TOKEN)" autocomplete="current-password">
+    <button type="submit">Ver contatos</button>
+  </form>
+  <p class="msg" id="msg" hidden></p>
+
+  <section id="painel" hidden>
+    <div class="stats" id="stats"></div>
+    <div class="bar">
+      <select id="filtro">
+        <option value="todos">Todos</option>
+        <option value="completo">Deixaram o contato</option>
+        <option value="parcial">Desistiram antes do contato</option>
+      </select>
+      <select id="evento"><option value="">Todos os eventos</option></select>
+      <button type="button" class="ghost" id="csv">Copiar planilha (CSV)</button>
+      <button type="button" class="ghost" id="atualizar">Atualizar</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ROTULOS = {tipo:'Tipo',operacao:'Como vende',tempo:'Tempo de casa',faixa:'Cliente ideal',dor:'Maior problema',descoberta:'Como é descoberto',
+  ticket:'Ticket médio',diferencial:'Diferencial',tom:'Tom',vender:'Quer vender',concorrencia:'Concorrência',status:'Instagram hoje',
+  naoMostrar:'Não quer mostrar',funcionou:'O que funcionou',objetivo:'Objetivo',obstaculo:'Maior trava',aparecer:'Quanto aparece',
+  inicio:'Início',fim:'Fim',total:'Conteúdos',formatos:'Formatos',nome:'Nome',whatsapp:'WhatsApp',instagram:'Instagram',perfil:'Papel'};
+let REG = [];
+
+try{ $('token').value = localStorage.getItem('spiceToken')||''; }catch(e){}
+
+async function carregar(){
+  const tk = $('token').value.trim(); if(!tk) return;
+  $('msg').hidden = true;
+  try{
+    const r = await fetch('/api/spice?token='+encodeURIComponent(tk));
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error||('Erro '+r.status));
+    try{ localStorage.setItem('spiceToken',tk); }catch(e){}
+    REG = j.registros||[];
+    const evs = [...new Set(REG.map(x=>x.evento).filter(Boolean))];
+    $('evento').innerHTML = '<option value="">Todos os eventos</option>'+evs.map(e=>'<option>'+esc(e)+'</option>').join('');
+    $('painel').hidden = false; render();
+  }catch(e){ $('msg').textContent = e.message==='Acesso negado.' ? 'Senha incorreta.' : e.message; $('msg').hidden = false; }
+}
+function filtrados(){
+  const f=$('filtro').value, ev=$('evento').value;
+  return REG.filter(x=>(f==='todos'||x.status===f)&&(!ev||x.evento===ev));
+}
+function render(){
+  const comp = REG.filter(x=>x.status==='completo').length;
+  $('stats').innerHTML = '<div class="stat"><b>'+REG.length+'</b>visitantes</div><div class="stat"><b>'+comp+'</b>deixaram o contato</div><div class="stat"><b>'+(REG.length-comp)+'</b>desistiram antes</div>';
+  $('list').innerHTML = filtrados().map(x=>{
+    const r = x.respostas||{}, l = x.lead||{};
+    const nome = l.nome||r.nome||'Sem nome';
+    const wa = (l.whatsapp||r.whatsapp||'').replace(/\D/g,'');
+    const ig = l.instagram||r.instagram||'';
+    const quando = x.atualizadoEm ? new Date(x.atualizadoEm).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}) : '';
+    const st = x.status==='completo' ? '<span class="pill ok">Contato completo</span>' : '<span class="pill">Parou na etapa '+esc(x.etapaAtual||'?')+' de 6</span>';
+    const dl = Object.keys(r).map(k=>'<dt>'+esc(ROTULOS[k]||k)+'</dt><dd>'+esc(Array.isArray(r[k])?r[k].join(', '):r[k])+'</dd>').join('');
+    return '<div class="item"><div class="top"><span class="nome">'+esc(nome)+'</span>'+st+(x.evento?'<span class="pill ev">'+esc(x.evento)+'</span>':'')+'<span class="when">'+esc(quando)+'</span></div>'+
+      '<div class="contato">'+(wa?'<a href="https://wa.me/'+(wa.length<=11?'55':'')+wa+'" target="_blank" rel="noopener">WhatsApp '+esc(wa)+'</a>':'')+
+      (ig?'<a href="https://instagram.com/'+esc(ig.replace('@',''))+'" target="_blank" rel="noopener">'+esc(ig)+'</a>':'')+
+      (r.objetivo?'<span>Objetivo: '+esc(r.objetivo)+'</span>':'')+'</div>'+
+      '<details><summary>Ver todas as respostas</summary><dl>'+dl+'</dl></details></div>';
+  }).join('') || '<p>Nenhum registro ainda.</p>';
+}
+function csv(){
+  const cols = ['atualizadoEm','situacao','evento','etapaAtual',...Object.keys(ROTULOS)];
+  const meta = {atualizadoEm:x=>x.atualizadoEm, situacao:x=>x.status==='completo'?'contato completo':'desistiu', evento:x=>x.evento, etapaAtual:x=>x.etapaAtual};
+  const cel = v => '"'+String(v==null?'':Array.isArray(v)?v.join(', '):v).replace(/"/g,'""')+'"';
+  const linhas = [cols.map(c=>cel(ROTULOS[c]||c)).join(',')].concat(filtrados().map(x=>{
+    const r = {...(x.respostas||{}), ...(x.lead||{})};
+    return cols.map(c=>cel(meta[c] ? meta[c](x) : r[c])).join(',');
+  }));
+  const txt = linhas.join('\n');
+  navigator.clipboard.writeText(txt).then(()=>{ $('csv').textContent='Copiado!'; setTimeout(()=>$('csv').textContent='Copiar planilha (CSV)',1500); })
+    .catch(()=>{ const w=window.open(); if(w){ w.document.body.innerText=txt; } });
+}
+$('login').addEventListener('submit',e=>{ e.preventDefault(); carregar(); });
+$('filtro').addEventListener('change',render);
+$('evento').addEventListener('change',render);
+$('csv').addEventListener('click',csv);
+$('atualizar').addEventListener('click',carregar);
+if($('token').value) carregar();
+</script>
+</body>
+</html>
