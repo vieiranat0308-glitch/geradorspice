@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google" content="notranslate">
 <meta name="theme-color" content="#fb6b3a">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <title>Calendário de Conteúdo | Spice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,8 +33,8 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 a{color:inherit}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1040px;margin:0 auto;padding:18px 16px}
-.logo{font-family:var(--display);font-size:28px;letter-spacing:.05em;text-transform:uppercase;line-height:1;color:var(--ink)}
-.logo small{display:block;font-family:var(--body);font-weight:700;font-size:10px;letter-spacing:.2em;margin-top:4px}
+.logo{display:block;line-height:0}
+.logo img{height:44px;width:auto}
 .evtag{font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--white);padding:7px 14px;border-radius:99px}
 .evtag.gold{background:var(--gold);color:var(--ink)}
 main{padding:0 16px 64px}
@@ -211,7 +213,8 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(251,107,58,.18)
 @media print{
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{background:#fff}
-  .top,.tools,.wa,.filters,.copy,.nopr{display:none!important}
+  .tools,.wa,.filters,.copy,.nopr{display:none!important}
+  .top{background:var(--orange);border-radius:16px}
   .sec,.hero,.final{box-shadow:none;border:2px solid var(--ink)}
   .post details{display:block} .post details>*{display:block}
 }
@@ -220,7 +223,7 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(251,107,58,.18)
 <body class="notranslate">
 
 <header class="top">
-  <div class="logo">Spice<small>MARKETING GASTRONÔMICO</small></div>
+  <div class="logo"><img src="logo-spice-branca.png" alt="Spice Marketing" width="138" height="44"></div>
   <div class="evtag" id="evtag" hidden></div>
 </header>
 
