@@ -4,140 +4,223 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google" content="notranslate">
-<title>Gerador de Calendário de Conteúdo | Spice</title>
+<meta name="theme-color" content="#fb6b3a">
+<title>Calendário de Conteúdo | Spice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* Fundo laranja da Spice, cartões brancos e botões em pílula escura. */
 :root{
-  --orange:#fb7c4f; --orange-deep:#f2682f;
-  --pink:#fd3a92; --pink-deep:#d4216f;
-  --cream:#f6f2e6; --ink:#3b3c37; --ink-soft:#4b4c47;
-  --line:rgba(59,60,55,.16); --card:#ffffff;
-  --gold:#f5b400;
-  --display:'Anton',Impact,sans-serif; --body:'Archivo',system-ui,sans-serif;
+  --orange:#fb6b3a; --orange-soft:#ff8c5f; --orange-deep:#e2531f; --tint:#fff1e8;
+  --ink:#2b2a26; --ink-soft:#5b5a54; --line:rgba(43,42,38,.13);
+  --white:#fff; --pink:#e6337f; --gold:#ffc933; --green:#25d366;
+  --topo:#fb6b3a; --meio:#e6337f; --fundo:#2b2a26;
+  --display:'Anton',Impact,'Arial Narrow',sans-serif; --body:'Archivo',system-ui,-apple-system,sans-serif;
+  --shadow:0 24px 60px -28px rgba(90,25,0,.55);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--cream);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;min-height:100vh}
+body{min-height:100vh;font-family:var(--body);font-size:16px;line-height:1.5;color:var(--ink);
+  background:radial-gradient(1200px 600px at 10% -10%,var(--orange-soft),transparent 60%),
+             radial-gradient(900px 500px at 110% 20%,#ff7a45,transparent 60%),var(--orange);
+  background-attachment:fixed}
 [hidden]{display:none!important}
-button{font-family:inherit;cursor:pointer}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--ink);color:var(--cream)}
-.logo{font-family:var(--display);font-size:26px;letter-spacing:.04em;text-transform:uppercase;line-height:1}
-.logo span{display:block;font-family:var(--body);font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--orange);margin-top:3px}
-.evtag{font-family:var(--body);font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--orange);color:#fff;padding:6px 12px;border-radius:99px;text-align:center}
-.evtag.gold{background:var(--gold);color:var(--ink)}
-main{padding:0 16px 56px}
-.wrap{max-width:680px;margin:0 auto}
-.wide{max-width:1000px;margin:0 auto}
-.hero{padding:28px 0 8px}
-.kicker{font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:8px}
-h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(34px,8vw,52px);line-height:1.02;letter-spacing:.01em}
-.hero p.sub{margin-top:12px;font-size:17px;color:var(--ink-soft);max-width:560px}
-.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:22px}
-.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--pink));transition:width .35s}
-.stepinfo{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:10px 0 4px}
-.step h2{font-family:var(--display);font-weight:400;font-size:26px;text-transform:uppercase;margin:6px 0 4px}
-.step .intro{margin-top:10px;background:#fff4ee;border:2px solid var(--orange);border-radius:14px;padding:14px 16px;font-weight:600}
-.step .nota{margin-top:16px;font-size:13px;color:var(--ink-soft)}
-.field{margin-top:20px}
-.field>label,.field>.lab{display:block;font-weight:700;font-size:15px;margin-bottom:9px}
-.field .hint{font-weight:500;color:var(--ink-soft);font-size:13px}
-input[type=text],input[type=tel],input[type=date]{width:100%;font:inherit;font-size:17px;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);outline:none;transition:border-color .15s}
-input:focus{border-color:var(--orange)}
-.chips{display:flex;flex-wrap:wrap;gap:9px}
-.chip{font-size:15px;font-weight:600;padding:11px 16px;border-radius:99px;border:2px solid var(--line);background:#fff;color:var(--ink);transition:all .12s;text-align:left;min-height:44px}
-.chip:hover{border-color:var(--orange)}
-.chip.on{background:var(--orange);border-color:var(--orange);color:#fff}
-.nav{display:flex;gap:10px;margin-top:30px}
-.btn{font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;padding:16px 26px;border-radius:14px;border:2px solid var(--ink);background:var(--ink);color:var(--cream);flex:1;transition:transform .1s,opacity .15s}
-.btn:active{transform:scale(.98)}
-.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
-.btn.ghost{background:transparent;color:var(--ink);flex:0 0 auto}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-.err{margin-top:12px;color:var(--pink-deep);font-weight:600;font-size:14px}
-.box{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:28px 22px;margin-top:28px}
-.center{text-align:center;padding-top:44px}
-.spin{width:54px;height:54px;border-radius:50%;border:6px solid var(--line);border-top-color:var(--orange);margin:0 auto 22px;animation:rot 1s linear infinite}
-@keyframes rot{to{transform:rotate(360deg)}}
-.dots{display:flex;gap:8px;justify-content:center;margin-top:18px}
-.dots i{width:34px;height:6px;border-radius:9px;background:var(--line);transition:background .3s}
-.dots i.ok{background:var(--orange)}
+button{font-family:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+a{color:inherit}
 
-/* resultado */
-.rhead{background:var(--ink);color:var(--cream);margin:0 -16px;padding:34px 16px 30px}
-.rhead .wide{display:flex;flex-direction:column;gap:6px}
-.rhead .kicker{color:var(--orange)}
-.rhead h1{color:#fff}
-.rhead p{color:rgba(246,242,230,.8);max-width:640px}
-.cards3{display:grid;gap:14px;grid-template-columns:1fr;margin-top:26px}
-.scard{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:20px}
-.scard h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:18px;color:var(--pink-deep);margin-bottom:8px;letter-spacing:.03em}
-.scard ul{padding-left:18px}
-.scard li{margin:3px 0}
-.sec{margin-top:40px}
-.sec>h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:28px}
-.week{margin-top:22px}
-.weekh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:3px solid var(--orange);padding-bottom:8px}
-.weekh b{font-family:var(--display);font-weight:400;font-size:22px;text-transform:uppercase;background:var(--orange);color:#fff;padding:2px 12px;border-radius:8px}
-.weekh span{font-weight:700;font-size:16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1040px;margin:0 auto;padding:18px 16px}
+.logo{font-family:var(--display);font-size:28px;letter-spacing:.05em;text-transform:uppercase;line-height:1;color:var(--ink)}
+.logo small{display:block;font-family:var(--body);font-weight:700;font-size:10px;letter-spacing:.2em;margin-top:4px}
+.evtag{font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--white);padding:7px 14px;border-radius:99px}
+.evtag.gold{background:var(--gold);color:var(--ink)}
+main{padding:0 16px 64px}
+.wrap{max-width:640px;margin:0 auto}
+.wide{max-width:1040px;margin:0 auto}
+
+/* Botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:999px;
+  font-weight:800;font-size:16px;letter-spacing:.02em;padding:17px 28px;background:var(--ink);color:var(--white);
+  box-shadow:0 10px 24px -12px rgba(0,0,0,.6);transition:transform .15s,box-shadow .15s,opacity .15s,background .15s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(0,0,0,.65)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+.btn svg{width:18px;height:18px;transition:transform .15s}
+.btn:hover svg{transform:translateX(3px)}
+.btn.light{background:var(--white);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.round{width:52px;height:52px;border-radius:50%;border:2px solid var(--line);background:var(--white);display:inline-flex;align-items:center;justify-content:center;transition:transform .15s,border-color .15s}
+.round:hover{border-color:var(--ink);transform:translateX(-2px)}
+.round svg{width:20px;height:20px}
+
+/* Abertura */
+.intro{padding:34px 0 10px;text-align:left}
+.kicker{display:inline-block;font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;background:var(--white);padding:6px 12px;border-radius:99px;margin-bottom:16px}
+h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(40px,10vw,72px);line-height:.98;letter-spacing:.005em;text-wrap:balance}
+.intro .sub{margin-top:16px;font-size:18px;font-weight:500;max-width:520px}
+.perks{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 30px}
+.perks span{background:rgba(255,255,255,.28);border:1.5px solid rgba(43,42,38,.18);padding:8px 14px;border-radius:99px;font-weight:700;font-size:14px}
+.intro .btn{font-size:18px;padding:19px 34px}
+
+/* Pergunta */
+.card{background:var(--white);border-radius:28px;box-shadow:var(--shadow);padding:26px 22px 22px;margin-top:18px}
+.prog{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.prog b{font-size:13px;font-weight:800;letter-spacing:.08em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.prog .bar{flex:1;height:8px;border-radius:99px;background:var(--tint);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--orange),var(--pink));transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.screen{animation:entra .34s cubic-bezier(.2,.8,.2,1)}
+.screen.volta{animation:volta .34s cubic-bezier(.2,.8,.2,1)}
+@keyframes entra{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes volta{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+.q{font-size:clamp(23px,5.4vw,30px);font-weight:800;line-height:1.15;letter-spacing:-.01em;text-wrap:balance}
+.qsub{margin-top:8px;color:var(--ink-soft);font-size:15px}
+.intro-box{margin-top:12px;background:var(--tint);border-radius:16px;padding:14px 16px;font-weight:600}
+.field{margin-top:20px}
+.field>label,.field>.lab{display:block;font-weight:700;font-size:14px;margin-bottom:8px}
+input[type=text],input[type=tel]{width:100%;font:inherit;font-size:18px;padding:16px 18px;border:2px solid var(--line);border-radius:16px;background:var(--white);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(251,107,58,.18)}
+.opts{display:grid;grid-template-columns:1fr;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:15px 16px;border-radius:16px;border:2px solid var(--line);
+  background:var(--white);font-size:16px;font-weight:650;min-height:56px;transition:transform .12s,border-color .12s,background .12s,color .12s}
+.opt:hover{border-color:var(--ink);transform:translateY(-1px)}
+.opt .k{flex:0 0 28px;height:28px;border-radius:8px;border:1.5px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--ink-soft)}
+.opt .t{flex:1}
+.opt .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:0 0 22px;display:inline-flex;align-items:center;justify-content:center}
+.opt .ck svg{width:12px;height:12px;opacity:0}
+.opt.on{background:var(--ink);border-color:var(--ink);color:var(--white)}
+.opt.on .k{border-color:var(--orange);background:var(--orange);color:var(--white)}
+.opt.on .ck{background:var(--orange);border-color:var(--orange)}
+.opt.on .ck svg{opacity:1}
+.opt.pop{animation:pop .22s ease}
+@keyframes pop{50%{transform:scale(1.02)}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:11px 16px;border-radius:99px;border:2px solid var(--line);background:var(--white);font-weight:700;font-size:15px;transition:all .12s}
+.chip:hover{border-color:var(--ink)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--white)}
+.resumo{margin-top:18px;background:var(--tint);border-radius:16px;padding:14px 16px;font-weight:700}
+.resumo b{color:var(--orange-deep)}
+.nota{margin-top:14px;font-size:13px;color:var(--ink-soft)}
+.err{margin-top:12px;color:#b3123f;font-weight:700;font-size:14px}
+.nav{display:flex;align-items:center;gap:12px;margin-top:26px}
+.nav .btn{flex:1}
+.hintkeys{margin-top:12px;text-align:center;font-size:12px;color:var(--ink-soft)}
+@media (min-width:560px){ .opts.two{grid-template-columns:1fr 1fr} .card{padding:34px 34px 28px} }
+@media (hover:none){ .hintkeys{display:none} }
+
+/* Carregando */
+.loading{padding-top:40px}
+.pan{width:96px;height:96px;margin:0 0 26px;position:relative}
+.pan i{position:absolute;inset:0;border-radius:50%;border:8px solid rgba(43,42,38,.15);border-top-color:var(--ink);animation:gira 1s linear infinite}
+.pan i:nth-child(2){inset:18px;border-width:6px;border-top-color:var(--white);animation-duration:1.4s;animation-direction:reverse}
+@keyframes gira{to{transform:rotate(360deg)}}
+.stages{list-style:none;margin-top:24px;display:grid;gap:10px}
+.stages li{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.35);border-radius:16px;padding:13px 16px;font-weight:700;transition:background .3s,opacity .3s;opacity:.55}
+.stages li .d{width:24px;height:24px;border-radius:50%;border:2.5px solid var(--ink);flex:0 0 24px;display:inline-flex;align-items:center;justify-content:center}
+.stages li.now{background:var(--white);opacity:1}
+.stages li.now .d{border-color:var(--orange);border-top-color:transparent;animation:gira .9s linear infinite}
+.stages li.ok{opacity:1}
+.stages li.ok .d{background:var(--ink)}
+.stages li.ok .d::after{content:"";width:8px;height:5px;border:2px solid var(--white);border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.tip{margin-top:22px;font-weight:600;min-height:48px}
+
+/* Resultado */
+.hero{background:var(--ink);color:var(--white);border-radius:28px;padding:32px 24px;margin-top:10px;box-shadow:var(--shadow)}
+.hero .kicker{background:var(--orange);color:var(--white)}
+.hero h1{color:var(--white);font-size:clamp(34px,7vw,58px)}
+.hero p{margin-top:12px;color:rgba(255,255,255,.82);max-width:640px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.meta span{background:rgba(255,255,255,.12);padding:7px 12px;border-radius:99px;font-weight:700;font-size:13px}
+.sec{margin-top:22px;background:var(--white);border-radius:28px;padding:26px 22px;box-shadow:var(--shadow)}
+.sec>h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(26px,5vw,34px);line-height:1.05}
+.sec>.lead{margin-top:6px;color:var(--ink-soft);max-width:680px}
+.grid{display:grid;gap:12px;margin-top:18px;grid-template-columns:1fr}
+.box{border:2px solid var(--line);border-radius:20px;padding:18px;min-width:0}
+.box h3{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-deep);margin-bottom:8px}
+.box ul{padding-left:18px}
+.box li{margin:4px 0}
+.ref .nm{font-weight:800;font-size:17px}
+.ref .on{font-size:13px;color:var(--ink-soft);margin-bottom:8px}
+.ref p{margin-top:6px;font-size:15px}
+.ref p b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--pink);display:block}
+.ref a{display:inline-block;margin-top:10px;font-weight:800;font-size:14px;color:var(--orange-deep)}
+.pil .pq{font-size:15px;color:var(--ink-soft)}
+.pil .ex{margin-top:10px;display:grid;gap:6px}
+.pil .ex span{background:var(--tint);border-radius:12px;padding:9px 12px;font-size:14px;font-weight:600}
+.funnel{margin-top:18px;display:flex;height:54px;border-radius:16px;overflow:hidden}
+.funnel div{display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:800;font-size:14px;min-width:58px;white-space:nowrap;overflow:hidden}
+.flegend{display:grid;gap:10px;margin-top:14px;grid-template-columns:1fr}
+.flegend div{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.flegend i{flex:0 0 14px;height:14px;border-radius:4px;margin-top:4px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.week{margin-top:26px}
+.weekh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.weekh b{font-family:var(--display);font-weight:400;font-size:22px;text-transform:uppercase;background:var(--orange);color:var(--white);padding:2px 12px;border-radius:10px}
+.weekh span{font-weight:700}
 .posts{display:grid;gap:12px;margin-top:14px;grid-template-columns:1fr}
-.post{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px 18px;break-inside:avoid}
-.ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.pd{font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
-.badge{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:var(--pink);color:#fff}
-.badge.cat{background:var(--ink)}
-.post h4{font-size:17px;font-weight:800;line-height:1.25;margin-bottom:6px}
-.post p{font-size:15px;color:var(--ink-soft)}
-.post .gancho{margin:8px 0;background:#fff4ee;border-left:4px solid var(--orange);border-radius:8px;padding:10px 12px;font-weight:800;font-size:16px;color:var(--ink)}
-.post .gancho span,.post .rot span,.post .leg span{display:block;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:3px}
-.post .rot{margin:8px 0;font-size:14px;color:var(--ink-soft)}
-.post .rot ol{padding-left:18px}
-.post .leg{margin-top:8px}
-.post .cta{margin-top:8px;font-weight:700;font-size:14px;color:var(--ink)}
-.post .cta em{font-style:normal;color:var(--orange-deep)}
-.post .tags{margin-top:8px;font-size:13px;color:var(--pink-deep);font-weight:600;word-break:break-word}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px}
-.cal .dh{font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;color:var(--ink-soft);padding:4px 0}
-.cal .c{background:var(--card);border:1px solid var(--line);border-radius:8px;min-height:58px;padding:5px 5px 6px;font-size:10.5px;line-height:1.25;overflow:hidden}
-.cal .c .n{font-weight:800;font-size:11px;color:var(--ink-soft);display:block;margin-bottom:2px}
-.cal .c.off{opacity:.35;background:transparent}
-.cal .c.has{background:#fff4ee;border-color:var(--orange)}
-.cal .c.has .n{color:var(--orange-deep)}
-.cal .c .f{display:block;font-weight:800;font-size:8px;letter-spacing:0;text-transform:uppercase;color:var(--pink-deep)}
-.cal .c .t{font-weight:600;word-break:break-word;display:none}
-.bonus{display:grid;gap:12px;grid-template-columns:1fr;margin-top:26px}
-.bcard{display:block;text-decoration:none;color:inherit;background:var(--gold);border-radius:16px;padding:18px 20px}
+.post{border:2px solid var(--line);border-radius:20px;padding:16px 18px;break-inside:avoid;min-width:0;transition:opacity .2s,transform .2s}
+.post.out{display:none}
+.ph{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pd{font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-right:4px}
+.badge{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:var(--tint);color:var(--ink)}
+.badge.f-topo{background:var(--topo);color:var(--white)}
+.badge.f-meio{background:var(--meio);color:var(--white)}
+.badge.f-fundo{background:var(--fundo);color:var(--white)}
+.post h4{font-size:15px;font-weight:700;color:var(--ink-soft)}
+.gancho{margin-top:6px;font-size:19px;font-weight:800;line-height:1.25}
+.post details{margin-top:12px}
+.post summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--orange-deep);list-style:none}
+.post summary::-webkit-details-marker{display:none}
+.post summary::before{content:"+ "}
+.post details[open] summary::before{content:"− "}
+.post .lbl{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--pink);margin:12px 0 4px}
+.post ol{padding-left:18px;font-size:15px}
+.post .leg{font-size:15px;white-space:pre-line}
+.post .cta{margin-top:10px;font-weight:700;font-size:14px}
+.post .tags{margin-top:6px;font-size:13px;color:var(--pink);font-weight:600;word-break:break-word}
+.copy{margin-top:10px;border:0;background:var(--tint);border-radius:99px;padding:8px 14px;font-weight:800;font-size:13px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:16px}
+.cal .dh{font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:var(--ink-soft);padding:4px 0}
+.cal .c{background:var(--tint);border-radius:10px;min-height:56px;padding:5px;font-size:10.5px;line-height:1.2;overflow:hidden}
+.cal .c .n{font-weight:800;font-size:11px;display:block;margin-bottom:3px}
+.cal .c.off{background:transparent;opacity:.35}
+.cal .c.f-topo{background:var(--topo);color:var(--white)}
+.cal .c.f-meio{background:var(--meio);color:var(--white)}
+.cal .c.f-fundo{background:var(--fundo);color:var(--white)}
+.cal .c .t{display:none;font-weight:600}
+.final{margin-top:22px;background:var(--ink);color:var(--white);border-radius:28px;padding:34px 24px;text-align:center;box-shadow:var(--shadow)}
+.final h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(28px,6vw,42px);line-height:1.05;text-wrap:balance}
+.final p{margin:12px auto 0;max-width:540px;color:rgba(255,255,255,.85)}
+.deadline{display:inline-block;margin-top:16px;background:var(--gold);color:var(--ink);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:8px 16px;border-radius:99px}
+.wa{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin-top:22px;background:var(--green);color:#06301a;font-weight:800;font-size:17px;text-decoration:none;padding:18px 30px;border-radius:999px;transition:transform .15s}
+.wa:hover{transform:translateY(-2px)}
+.tools{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;justify-content:center}
+.foot{margin-top:22px;font-size:12px;text-align:center}
+.bonus{display:grid;gap:12px;margin-top:18px;grid-template-columns:1fr}
+.bcard{display:block;text-decoration:none;background:var(--gold);border-radius:20px;padding:18px 20px;font-weight:700}
 .bcard b{font-family:var(--display);font-weight:400;font-size:20px;text-transform:uppercase;display:block}
-.final{margin-top:44px;background:var(--ink);color:var(--cream);border-radius:24px;padding:32px 24px;text-align:center}
-.final h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(26px,6vw,38px);line-height:1.08;color:#fff}
-.final p{margin:12px auto 0;max-width:520px;color:rgba(246,242,230,.85)}
-.final .deadline{display:inline-block;margin-top:16px;background:var(--gold);color:var(--ink);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:99px}
-.wa{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin-top:22px;background:#25d366;color:#0b2e17;font-weight:800;font-size:17px;letter-spacing:.03em;text-transform:uppercase;text-decoration:none;padding:17px 28px;border-radius:14px}
-.tools{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-.tools .btn{flex:1 1 180px}
-.foot{margin-top:26px;font-size:12px;color:var(--ink-soft);text-align:center}
+.center{text-align:center;padding-top:50px}
 @media (min-width:720px){
-  .cards3{grid-template-columns:repeat(3,1fr)}
-  .posts{grid-template-columns:1fr 1fr}
-  .bonus{grid-template-columns:1fr 1fr}
-  .cal .c{min-height:96px;padding:7px 8px;font-size:12px}
-  .cal .c .f{font-size:10px}
-  .cal .c .t{display:block}
+  .grid.g2{grid-template-columns:1fr 1fr} .grid.g3{grid-template-columns:repeat(3,1fr)}
+  .posts{grid-template-columns:1fr 1fr} .bonus{grid-template-columns:1fr 1fr}
+  .flegend{grid-template-columns:repeat(3,1fr)}
+  .cal .c{min-height:92px;padding:7px 8px;font-size:12px} .cal .c .t{display:block}
+  .hero,.sec{padding:36px 34px}
 }
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 @media print{
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .top,.tools,.final .wa,.nopr{display:none!important}
   body{background:#fff}
-  .final{background:#fff;color:var(--ink);border:2px solid var(--ink)}
-  .final h2{color:var(--ink)} .final p{color:var(--ink)}
+  .top,.tools,.wa,.filters,.copy,.nopr{display:none!important}
+  .sec,.hero,.final{box-shadow:none;border:2px solid var(--ink)}
+  .post details{display:block} .post details>*{display:block}
 }
 </style>
 </head>
 <body class="notranslate">
 
 <header class="top">
-  <div class="logo">Spice<span>MARKETING GASTRONÔMICO · DEMO</span></div>
+  <div class="logo">Spice<small>MARKETING GASTRONÔMICO</small></div>
   <div class="evtag" id="evtag" hidden></div>
 </header>
 
@@ -147,48 +230,54 @@ input:focus{border-color:var(--orange)}
     <div class="wrap center">
       <p class="kicker" id="blkKick"></p>
       <h1 id="blkTitle"></h1>
-      <p class="sub" id="blkText" style="margin-top:14px;font-size:17px;color:var(--ink-soft)"></p>
+      <p id="blkText" style="margin-top:14px;font-size:17px;font-weight:500"></p>
       <a class="wa" id="blkWa" href="#" target="_blank" rel="noopener">Falar com a Spice no WhatsApp</a>
     </div>
   </section>
 
-  <!-- Formulário -->
+  <!-- Abertura -->
+  <section id="vIntro" hidden>
+    <div class="wrap intro">
+      <p class="kicker" id="kick"></p>
+      <h1 id="h1"></h1>
+      <p class="sub" id="sub"></p>
+      <div class="perks"><span>Menos de 2 minutos</span><span>Estratégia 60/20/20</span><span>Referências do mercado</span><span>Ganchos prontos</span></div>
+      <button type="button" class="btn" id="start">Começar agora <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <!-- Perguntas -->
   <section id="vWizard" hidden>
     <div class="wrap">
-      <div class="hero">
-        <p class="kicker" id="kick"></p>
-        <h1 id="h1"></h1>
-        <p class="sub" id="sub"></p>
-      </div>
-      <div class="bar"><i id="fill"></i></div>
-      <p class="stepinfo" id="stepinfo"></p>
-      <form id="stepbox" class="step" onsubmit="return false" autocomplete="off"></form>
-      <p class="err" id="err" hidden></p>
-      <div class="nav">
-        <button type="button" class="btn ghost" id="back">Voltar</button>
-        <button type="button" class="btn primary" id="next" disabled>Continuar</button>
+      <div class="card">
+        <div class="prog"><b id="stepinfo"></b><div class="bar"><i id="fill"></i></div></div>
+        <form id="stepbox" onsubmit="return false" autocomplete="off"></form>
+        <p class="err" id="err" hidden></p>
+        <div class="nav">
+          <button type="button" class="round" id="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+          <button type="button" class="btn" id="next" disabled><span id="nextTxt">Continuar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <p class="hintkeys">Dica: use as letras do teclado para escolher e Enter para avançar.</p>
       </div>
     </div>
   </section>
 
   <!-- Gerando -->
   <section id="vLoading" hidden>
-    <div class="wrap center">
-      <div class="spin"></div>
-      <h1 style="font-size:clamp(28px,7vw,40px)" id="ldTitle">Montando seu calendário</h1>
-      <p class="sub" id="ldMsg" style="margin-top:12px;font-size:17px;color:var(--ink-soft)">Analisando o perfil do seu restaurante</p>
-      <div class="dots"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="wrap loading">
+      <div class="pan"><i></i><i></i></div>
+      <h1 style="font-size:clamp(34px,8vw,54px)">Montando seu calendário</h1>
+      <ul class="stages" id="stages"></ul>
+      <p class="tip" id="tip"></p>
     </div>
   </section>
 
-  <!-- Falha na geração -->
+  <!-- Falha -->
   <section id="vFail" hidden>
     <div class="wrap center">
-      <h1 style="font-size:clamp(28px,7vw,40px)">Algo deu errado</h1>
-      <p class="sub" style="margin-top:12px;font-size:17px;color:var(--ink-soft)">Suas respostas continuam aqui. Tente gerar de novo em alguns segundos.</p>
-      <div class="nav" style="max-width:420px;margin-left:auto;margin-right:auto">
-        <button type="button" class="btn primary" id="retry">Tentar de novo</button>
-      </div>
+      <h1 style="font-size:clamp(34px,8vw,54px)">Algo deu errado</h1>
+      <p style="margin-top:12px;font-size:17px;font-weight:500">Suas respostas continuam aqui. Tente gerar de novo em alguns segundos.</p>
+      <div class="tools"><button type="button" class="btn" id="retry">Tentar de novo</button></div>
       <a class="wa" id="failWa" href="#" target="_blank" rel="noopener">Pedir ajuda no WhatsApp</a>
     </div>
   </section>
@@ -226,7 +315,7 @@ const EVENTOS = {
     id:'jotaja', dia:'2026-10-27', nomeCurto:'JOTAJA', tag:'Cardápio de conteúdo', gold:false,
     kicker:'JOTAJA · Cardápio de conteúdo',
     titulo:'Monte o cardápio de conteúdo da sua hamburgueria',
-    sub:'Entradas para atrair, pratos principais para vender e sobremesas para fidelizar. Responda e receba o seu em 2 minutos.',
+    sub:'Entradas para atrair, pratos principais para convencer e sobremesas para fechar o pedido. Responda e receba o seu em 2 minutos.',
     tipoPadrao:'Hamburgueria', cardapio:true,
     bonus:[],
     ctaTitulo:'Quer o cardápio de conteúdo executado por quem entende de hambúrguer?',
@@ -258,54 +347,49 @@ const EVENTOS = {
 };
 
 /* ============================================================
-   FORMULÁRIO
+   PERGUNTAS (uma por tela; telas com uma única escolha avançam sozinhas)
    ============================================================ */
+const OBJETIVOS = ['Encher o salão','Mais pedidos no delivery próprio','Depender menos dos apps','Fazer o cliente voltar','Lançar cardápio ou item novo','Ser referência no bairro'];
 const STEPS = [
-  {titulo:'Seu restaurante', campos:[
-    {id:'campeao', tipo:'text', label:'Qual é o prato ou produto mais pedido da casa?', ph:'Ex.: smash duplo com cheddar'},
-    {id:'bairro', tipo:'text', label:'Bairro e cidade', ph:'Ex.: Tijuca, Rio de Janeiro'},
-    {id:'tipo', tipo:'chips', label:'Tipo de restaurante', opts:['Hamburgueria','Pizzaria','Restaurante','Bar','Japonês','Confeitaria ou cafeteria','Dark kitchen','Steakhouse ou churrascaria','Outro']},
-    {id:'operacao', tipo:'chips', label:'Como você vende hoje?', opts:['Só salão','Salão e delivery','Só delivery próprio','Delivery em apps','Dark kitchen']},
-    {id:'tempo', tipo:'chips', label:'Há quanto tempo o restaurante existe?', opts:['Menos de 1 ano','1 a 3 anos','3 a 5 anos','Mais de 5 anos']},
-    {id:'faixa', tipo:'chips', label:'Quem é seu cliente ideal?', opts:['Jovens (18 a 29)','Adultos (30 a 45)','Famílias','Todas as idades']},
-    {id:'dor', tipo:'chips', label:'Qual o seu maior problema hoje?', opts:['Salão vazio em dias fracos','Poucos pedidos no delivery','Dependo dos apps e das taxas','Pouca gente me conhece','Cliente não volta','Ticket médio baixo']},
-    {id:'descoberta', tipo:'chips', label:'Como seus clientes descobrem você hoje?', opts:['Indicação boca a boca','Instagram','Apps de delivery','Google Maps','Passam na frente','Ainda quase ninguém descobre']}
-  ]},
-  {titulo:'Posicionamento', campos:[
-    {id:'ticket', tipo:'chips', label:'Ticket médio por pessoa', opts:['Até R$ 30','R$ 30 a R$ 60','R$ 60 a R$ 100','Acima de R$ 100']},
-    {id:'diferencial', tipo:'chips', label:'O que mais diferencia o seu restaurante?', opts:['Sabor e receita própria','Ingredientes premium','Atendimento','Preço justo','Ambiente','Rapidez na entrega']},
-    {id:'tom', tipo:'chips', label:'Como você quer soar nas redes?', opts:['Descontraído e divertido','Aconchegante e próximo','Sofisticado','Direto e provocativo']},
-    {id:'vender', tipo:'chips', label:'O que você mais quer vender agora?', opts:['Meu prato campeão','Combos e promoções','Item novo do cardápio','Mesas no salão','Delivery próprio','Uma data ou evento especial']},
-    {id:'concorrencia', tipo:'chips', label:'Quem é sua maior concorrência?', opts:['Restaurantes do bairro','Redes grandes','Apps de delivery','Não sei dizer']}
-  ]},
-  {titulo:'Seu Instagram hoje', campos:[
-    {id:'status', tipo:'chips', label:'Como está o seu perfil?', opts:['Ainda não tenho perfil','Menos de 1 mil seguidores','1 a 5 mil','5 a 20 mil','Mais de 20 mil']},
-    {id:'naoMostrar', tipo:'chips', label:'O que você NÃO quer mostrar?', opts:['Posso mostrar tudo','A cozinha','Meu rosto','Preços','Minha equipe']},
-    {id:'funcionou', tipo:'chips', label:'Que tipo de post já deu mais resultado?', opts:['Vídeo do prato','Bastidores','Promoção','Depoimento de cliente','Ainda não sei','Nunca postei de forma consistente']}
-  ]},
-  {titulo:'Estratégia', campos:[
-    {id:'objetivo', tipo:'chips', label:'Qual o seu objetivo agora?', opts:['Encher o salão','Mais pedidos no delivery próprio','Depender menos dos apps','Fazer o cliente voltar','Lançar cardápio ou item novo','Ser referência no bairro']},
-    {id:'obstaculo', tipo:'chips', label:'O que mais te trava no conteúdo?', opts:['Falta de tempo','Não sei o que postar','Tenho vergonha de aparecer','Não sei editar','A equipe não ajuda']},
-    {id:'aparecer', tipo:'chips', label:'Quanto você quer aparecer?', opts:['Prefiro não aparecer','Apareço com moderação','Quero aparecer bastante']}
-  ]},
-  {titulo:'Período e formatos', campos:[
-    {id:'inicio', tipo:'date', label:'Em que dia você quer começar?'},
-    {id:'fim', tipo:'date', label:'Até que dia o calendário deve ir?', hint:'(período de no máximo 30 dias)'},
-    {id:'total', tipo:'chips', label:'Quantos conteúdos no total?', hint:'(no máximo 15, sendo 1 por dia)', opts:['3 conteúdos','5 conteúdos','8 conteúdos','10 conteúdos','12 conteúdos','15 conteúdos']},
-    {id:'formatos', tipo:'multi', label:'Quais formatos você prefere?', hint:'(pode marcar mais de um)', opts:['Reels','Carrossel','Foto','Stories']}
-  ]},
-  /* Última etapa: contato. O calendário só é liberado depois dela. */
-  {titulo:'Libere seu calendário', contato:true,
-   intro:'Pronto! Já temos tudo para montar o seu calendário. Diga quem é você para liberar o resultado.',
+  {q:'Que tipo de negócio é o seu?', skip:()=>!!EV.tipoPadrao, campos:[
+    {id:'tipo', tipo:'opts', cols:2, opts:['Hamburgueria','Pizzaria','Restaurante','Bar ou boteco','Japonês','Cafeteria ou confeitaria','Dark kitchen','Churrascaria','Outro']}]},
+  {q:'Qual é o campeão de vendas da casa?', sub:'É a partir dele que a gente cria os ganchos.', campos:[
+    {id:'campeao', tipo:'text', label:'Prato ou produto mais pedido', ph:'Ex.: smash duplo com cheddar'},
+    {id:'bairro', tipo:'text', label:'Bairro e cidade', ph:'Ex.: Tijuca, Rio de Janeiro'}]},
+  {q:'Como você vende hoje?', campos:[
+    {id:'operacao', tipo:'opts', cols:2, opts:['Só salão','Salão e delivery','Delivery próprio','Delivery em apps']}]},
+  {q:'Quanto cada cliente gasta, em média?', campos:[
+    {id:'ticket', tipo:'opts', cols:2, opts:['Até R$ 30','R$ 30 a R$ 60','R$ 60 a R$ 100','Acima de R$ 100']}]},
+  {q:'Quem é o seu cliente principal?', campos:[
+    {id:'faixa', tipo:'opts', cols:2, opts:['Jovens (18 a 29)','Adultos (30 a 45)','Famílias','Quem trabalha por perto','Todas as idades']}]},
+  {q:'Qual é o seu objetivo agora?', sub:'O calendário inteiro é montado em torno dele.', campos:[
+    {id:'objetivo', tipo:'opts', opts:OBJETIVOS}]},
+  {q:'O que mais te incomoda hoje?', campos:[
+    {id:'dor', tipo:'opts', opts:['Salão vazio em dias fracos','Poucos pedidos no delivery','Dependo dos apps e das taxas','Pouca gente me conhece','Cliente não volta','Ticket médio baixo']}]},
+  {q:'Por que o cliente escolhe você?', campos:[
+    {id:'diferencial', tipo:'opts', cols:2, opts:['Sabor e receita própria','Ingredientes premium','Atendimento','Preço justo','Ambiente','Rapidez']}]},
+  {q:'Quanto você topa aparecer nos vídeos?', campos:[
+    {id:'aparecer', tipo:'opts', opts:['Prefiro não aparecer','Apareço de vez em quando','Quero aparecer bastante']}]},
+  {q:'Que formatos você consegue produzir?', sub:'Pode marcar mais de um.', campos:[
+    {id:'formatos', tipo:'multi', cols:2, opts:['Reels','Carrossel','Foto','Stories']}]},
+  {q:'Para quanto tempo é o calendário?', campos:[
+    {id:'periodo', tipo:'chips', label:'Período', opts:['1 semana','2 semanas','1 mês']},
+    {id:'freq', tipo:'chips', label:'Posts por semana', opts:['2 por semana','3 por semana','4 por semana','5 por semana']}], resumo:true},
+  {q:'Pronto! Para quem é esse calendário?', contato:true,
+   intro:'Já temos tudo para montar a sua estratégia. Diga quem é você para liberar o resultado.',
    nota:'Usamos seus dados só para te identificar e falar com você sobre o seu calendário. Nada de spam.',
    campos:[
     {id:'nome', tipo:'text', label:'Seu nome', ph:'Como podemos te chamar?'},
-    {id:'whatsapp', tipo:'tel', label:'Seu WhatsApp com DDD', ph:'(21) 99999-9999'},
-    {id:'instagram', tipo:'text', label:'@ do Instagram do restaurante', ph:'@seurestaurante'},
-    {id:'perfil', tipo:'chips', label:'Qual o seu papel?', opts:['Sou dono ou sócio','Sou gerente ou decisor','Trabalho no restaurante','Só estou curioso']}
-  ]}
+    {id:'whatsapp', tipo:'tel', label:'WhatsApp com DDD', ph:'(21) 99999-9999'},
+    {id:'instagram', tipo:'text', label:'@ do Instagram do negócio', ph:'@seurestaurante'},
+    {id:'perfil', tipo:'chips', label:'Seu papel', opts:['Dono ou sócio','Gerente','Trabalho no restaurante','Só curiosidade']}]}
 ];
-const LIM = {dias:30, conteudos:15};   // limites do período personalizado
+const DIAS_PERIODO = {'1 semana':7,'2 semanas':14,'1 mês':30};
+const ETAPAS_FUNIL = {
+  topo:{nome:'Topo de funil', curto:'Topo · atrair', pct:60, txt:'Atrai quem ainda não te conhece: curiosidade, bastidor, entretenimento.'},
+  meio:{nome:'Meio de funil', curto:'Meio · convencer', pct:20, txt:'Faz quem já viu confiar e desejar: prova social, diferencial, processo.'},
+  fundo:{nome:'Fundo de funil', curto:'Fundo · vender', pct:20, txt:'Transforma em pedido ou visita: oferta real, motivo para pedir hoje.'}
+};
 
 /* ============================================================
    UTILIDADES
@@ -315,24 +399,19 @@ const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&
 const pad = n => String(n).padStart(2,'0');
 const WEEK = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
 
-function todaySP(){
-  return new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'}); // YYYY-MM-DD
-}
+function todaySP(){ return new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'}); }
 function isoToDate(iso){ return new Date(iso+'T12:00:00'); }
 function addDays(iso,n){ const d=isoToDate(iso); d.setDate(d.getDate()+n); return d; }
 function fmtDM(d){ return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
 function fmtISOBR(iso){ const [y,m,d]=iso.split('-'); return d+'/'+m; }
-function nextMondayAfter(iso){
-  const d=isoToDate(iso); const dow=d.getDay();
-  const add=((8-dow)%7)||7;
-  d.setDate(d.getDate()+add);
-  return d;
-}
 function diffDays(a,b){ return Math.round((isoToDate(b)-isoToDate(a))/86400000); }
 function toISO(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
-function show(id){ ['vBlocked','vWizard','vLoading','vFail','vResult'].forEach(x=>$(x).hidden = x!==id); window.scrollTo(0,0); }
+function show(id){ ['vBlocked','vIntro','vWizard','vLoading','vFail','vResult'].forEach(x=>$(x).hidden = x!==id); window.scrollTo(0,0); }
 function waLink(msg){ return 'https://wa.me/'+CONFIG.whatsapp+'?text='+encodeURIComponent(msg); }
+function hashStr(t){ let h=0; for(const c of String(t||'x')) h=(h*31+c.charCodeAt(0))>>>0; return h; }
 
 /* ============================================================
    EVENTO E VALIDADE
@@ -341,12 +420,16 @@ const params = new URLSearchParams(location.search);
 const evKey = (params.get('evento')||'geral').toLowerCase();
 const EV = EVENTOS[evKey] || EVENTOS.geral;
 const PREVIEW = params.has('teste');   // ?teste=1 abre o link fora do dia do evento
+if(EV.cardapio){
+  ETAPAS_FUNIL.topo.curto='Entrada · atrair'; ETAPAS_FUNIL.meio.curto='Prato principal · convencer'; ETAPAS_FUNIL.fundo.curto='Sobremesa · fechar o pedido';
+}
 
 const S = {};      // respostas
-let stepIdx = 0;
+let pos = 0;       // tela atual (entre as visíveis)
 let leadSent = false;
 let busy = false;
 const SESSAO = (window.crypto&&crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2);
+const visiveis = () => STEPS.filter(s=>!(s.skip&&s.skip()));
 
 function init(){
   if(EV.tag){ const t=$('evtag'); t.textContent=EV.tag; t.hidden=false; if(EV.gold) t.classList.add('gold'); }
@@ -354,7 +437,6 @@ function init(){
   $('h1').textContent = EV.titulo;
   $('sub').textContent = EV.sub;
   document.title = EV.titulo+' | Spice';
-
   if(EV.dia && !PREVIEW){
     const hoje = todaySP();
     if(hoje < EV.dia){
@@ -369,142 +451,165 @@ function init(){
     }
   }
   if(EV.tipoPadrao) S.tipo = EV.tipoPadrao;
-  show('vWizard');
-  renderStep();
+  show('vIntro');
 }
 function blocked(kick,title,text,msg){
   $('blkKick').textContent=kick; $('blkTitle').textContent=title; $('blkText').textContent=text;
   $('blkWa').href = waLink(msg);
   show('vBlocked');
 }
+$('start').addEventListener('click',()=>{ show('vWizard'); renderStep(); });
 
 /* ============================================================
-   RENDER DO FORMULÁRIO
+   PERÍODO
    ============================================================ */
-function renderStep(){
-  const st = STEPS[stepIdx];
-  $('fill').style.width = ((stepIdx)/STEPS.length*100)+'%';
-  $('stepinfo').textContent = 'Etapa '+(stepIdx+1)+' de '+STEPS.length;
-  $('back').style.visibility = stepIdx===0?'hidden':'visible';
-  $('next').textContent = st.contato ? 'Liberar meu calendário' : 'Continuar';
+function periodo(){
+  const dias = DIAS_PERIODO[S.periodo]; const freq = parseInt(S.freq,10);
+  if(!dias||!freq) return null;
+  const inicio = toISO(addDays(todaySP(),1));
+  const total = Math.max(1, Math.min(15, dias, Math.round(dias/7*freq)));
+  return {inicio, fim:toISO(addDays(inicio,dias-1)), total, dias};
+}
+
+/* ============================================================
+   RENDER DAS PERGUNTAS
+   ============================================================ */
+function autoAvanca(st){ return st.campos.length===1 && st.campos[0].tipo==='opts'; }
+
+function renderStep(dir){
+  const vs = visiveis(); const st = vs[pos];
+  $('fill').style.width = ((pos+1)/vs.length*100)+'%';
+  $('stepinfo').textContent = (pos+1)+' / '+vs.length;
+  $('back').style.visibility = pos===0?'hidden':'visible';
+  $('nextTxt').textContent = st.contato ? 'Liberar meu calendário' : 'Continuar';
   $('err').hidden = true;
 
-  let h = '<h2>'+esc(st.titulo)+'</h2>';
-  if(st.intro) h += '<p class="intro">'+esc(st.intro)+'</p>';
+  let h = '<div class="screen'+(dir==='back'?' volta':'')+'"><h2 class="q">'+esc(st.q)+'</h2>';
+  if(st.sub) h += '<p class="qsub">'+esc(st.sub)+'</p>';
+  if(st.intro) h += '<p class="intro-box">'+esc(st.intro)+'</p>';
+  let letra = 0;
   st.campos.forEach(c=>{
     h += '<div class="field">';
     if(c.tipo==='text' || c.tipo==='tel'){
       h += '<label for="f_'+c.id+'">'+esc(c.label)+'</label>'+
            '<input type="'+(c.tipo==='tel'?'tel':'text')+'" id="f_'+c.id+'" data-f="'+c.id+'" placeholder="'+esc(c.ph)+'" value="'+esc(S[c.id]||'')+'"'+
            (c.tipo==='tel'?' inputmode="tel" autocomplete="tel"':'')+'>';
-    } else if(c.tipo==='date'){
-      const mn = c.id==='inicio' ? todaySP() : (S.inicio||todaySP());
-      const mx = c.id==='fim' && S.inicio ? toISO(addDays(S.inicio,LIM.dias-1)) : '';
-      h += '<label for="f_'+c.id+'">'+esc(c.label)+(c.hint?' <span class="hint">'+esc(c.hint)+'</span>':'')+'</label>'+
-           '<input type="date" id="f_'+c.id+'" data-f="'+c.id+'" min="'+mn+'"'+(mx?' max="'+mx+'"':'')+' value="'+esc(S[c.id]||'')+'">';
+    } else if(c.tipo==='chips'){
+      h += '<span class="lab">'+esc(c.label)+'</span><div class="chips">';
+      c.opts.forEach(o=>{ h += '<button type="button" class="chip'+(S[c.id]===o?' on':'')+'" data-c="'+c.id+'" data-t="chips" data-v="'+esc(o)+'">'+esc(o)+'</button>'; });
+      h += '</div>';
     } else {
-      h += '<span class="lab">'+esc(c.label)+(c.hint?' <span class="hint">'+esc(c.hint)+'</span>':'')+'</span><div class="chips">';
+      h += '<div class="opts'+(c.cols===2?' two':'')+'">';
       c.opts.forEach(o=>{
         const on = c.tipo==='multi' ? (S[c.id]||[]).includes(o) : S[c.id]===o;
-        h += '<button type="button" class="chip'+(on?' on':'')+'" data-c="'+c.id+'" data-t="'+c.tipo+'" data-v="'+esc(o)+'">'+esc(o)+'</button>';
+        h += '<button type="button" class="opt'+(on?' on':'')+'" data-c="'+c.id+'" data-t="'+c.tipo+'" data-v="'+esc(o)+'" data-k="'+String.fromCharCode(65+letra)+'">'+
+             '<span class="k">'+String.fromCharCode(65+letra++)+'</span><span class="t">'+esc(o)+'</span><span class="ck">'+CHECK+'</span></button>';
       });
       h += '</div>';
     }
     h += '</div>';
   });
+  if(st.resumo) h += '<p class="resumo" id="resumo"></p>';
   if(st.nota) h += '<p class="nota">'+esc(st.nota)+'</p>';
+  h += '</div>';
   $('stepbox').innerHTML = h;
+  // Telas de escolha única avançam sozinhas; o botão só aparece se já houver resposta (ao voltar).
+  $('next').style.visibility = autoAvanca(st) && !S[st.campos[0].id] ? 'hidden' : 'visible';
   refreshNext();
+  const first = $('stepbox').querySelector('input');
+  if(first && !('ontouchstart' in window)) first.focus();
 }
 
 function fieldOk(c){
   const v = S[c.id];
-  if(c.id==='nome') return !!v && v.trim().length>=2;
   if(c.id==='instagram') return !!v && v.replace('@','').trim().length>=2;
   if(c.id==='whatsapp') return !!v && v.replace(/\D/g,'').length>=10;
   if(c.tipo==='text') return !!v && v.trim().length>=2;
   if(c.tipo==='multi') return Array.isArray(v) && v.length>0;
   return !!v;
 }
-function periodError(){
-  if(!S.inicio||!S.fim) return '';
-  if(S.inicio<todaySP()) return 'A data inicial não pode ser no passado.';
-  if(S.fim<S.inicio) return 'A data final precisa ser depois da inicial.';
-  const dias = diffDays(S.inicio,S.fim)+1;
-  if(dias>LIM.dias) return 'O período pode ter no máximo '+LIM.dias+' dias. Você escolheu '+dias+'.';
-  const t = parseInt(S.total,10);
-  if(t && t>dias) return 'Você pediu '+t+' conteúdos em '+dias+' dia(s). Aumente o período ou escolha menos conteúdos (1 por dia no máximo).';
-  return '';
-}
-function stepOk(){
-  const st = STEPS[stepIdx];
-  return st.campos.every(fieldOk) && !(st.campos.some(c=>c.tipo==='date') && periodError());
-}
+function stepOk(){ return visiveis()[pos].campos.every(fieldOk); }
 function refreshNext(){
-  const er = $('err');
-  const pe = STEPS[stepIdx].campos.some(c=>c.tipo==='date') ? periodError() : '';
-  if(pe){ er.textContent = pe; er.hidden = false; } else er.hidden = true;
   $('next').disabled = busy || !stepOk();
+  const r = $('resumo');
+  if(r){
+    const p = periodo();
+    r.innerHTML = p ? 'Você vai receber <b>'+p.total+' conteúdos</b>, de '+fmtDM(isoToDate(p.inicio))+' a '+fmtDM(isoToDate(p.fim))+'.' : 'Escolha o período e a frequência.';
+  }
+}
+function avancar(){
+  const vs = visiveis();
+  if(!stepOk()||busy) return;
+  if(vs[pos].contato){ liberar(); return; }
+  pos++; salvarParcial(); renderStep(); window.scrollTo(0,0);
+}
+async function liberar(){
+  if(!leadSent){
+    busy=true; $('next').disabled=true; $('nextTxt').textContent='Liberando...';
+    await captureLead();
+    busy=false;
+  }
+  generate();
 }
 
 $('stepbox').addEventListener('input',e=>{
   const f = e.target.dataset.f; if(!f) return;
   let v = e.target.value;
   if(f==='instagram'){ v = v.replace(/\s/g,''); if(v && v[0]!=='@') v='@'+v; e.target.value=v; }
-  S[f]=v;
-  if(f==='inicio'){
-    const fim = $('f_fim');
-    if(fim && v){ fim.min = v; fim.max = toISO(addDays(v,LIM.dias-1)); }
-  }
-  refreshNext();
+  S[f]=v; refreshNext();
 });
 $('stepbox').addEventListener('click',e=>{
-  const b = e.target.closest('.chip'); if(!b) return;
-  const id=b.dataset.c, v=b.dataset.v;
-  if(b.dataset.t==='multi'){
+  const b = e.target.closest('.opt,.chip'); if(!b) return;
+  escolher(b);
+});
+function escolher(b){
+  const id=b.dataset.c, v=b.dataset.v, t=b.dataset.t;
+  if(t==='multi'){
     const a = S[id]||[]; const i=a.indexOf(v);
     if(i>=0) a.splice(i,1); else a.push(v);
     S[id]=a; b.classList.toggle('on');
   } else {
     S[id]=v;
-    b.parentNode.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));
+    b.parentNode.querySelectorAll('.opt,.chip').forEach(x=>x.classList.toggle('on',x===b));
   }
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
   refreshNext();
+  if(t==='opts' && autoAvanca(visiveis()[pos])){ setTimeout(avancar, 260); }
+}
+document.addEventListener('keydown',e=>{
+  if($('vWizard').hidden || e.target.tagName==='INPUT' && e.key!=='Enter') return;
+  if(e.key==='Enter'){ e.preventDefault(); avancar(); return; }
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  const k = e.key.toUpperCase();
+  const b = $('stepbox').querySelector('.opt[data-k="'+k+'"]');
+  if(b) escolher(b);
 });
-$('back').addEventListener('click',()=>{ if(stepIdx>0){ stepIdx--; renderStep(); window.scrollTo(0,0);} });
-$('next').addEventListener('click',async()=>{
-  if(!stepOk()||busy) return;
-  if(STEPS[stepIdx].contato && !leadSent){
-    busy=true; $('next').disabled=true; $('next').textContent='Liberando...';
-    await captureLead();
-    busy=false;
-  }
-  if(stepIdx < STEPS.length-1){ stepIdx++; salvarParcial(); renderStep(); window.scrollTo(0,0); }
-  else generate();
-});
+$('back').addEventListener('click',()=>{ if(pos>0){ pos--; renderStep('back'); window.scrollTo(0,0);} });
+$('next').addEventListener('click',avancar);
 
 /* ============================================================
    API
    ============================================================ */
 function leadPayload(){
-  const dono = S.perfil==='Sou dono ou sócio' || S.perfil==='Sou gerente ou decisor';
+  const dono = S.perfil==='Dono ou sócio' || S.perfil==='Gerente';
   return {nome:S.nome.trim(), instagram:S.instagram.trim(), whatsapp:S.whatsapp.replace(/\D/g,''),
           tipo:S.tipo, perfil:S.perfil, icp:dono, evento:EV.id, sessao:SESSAO};
 }
 
 /* Resposta parcial: salva o que a pessoa já preencheu, mesmo se ela desistir antes do contato.
-   Vai a cada etapa concluída e quando a página é fechada ou fica em segundo plano.
-   O servidor deve agrupar pelo campo "sessao" (o lead completo usa a mesma sessão). */
+   Vai a cada tela concluída e quando a página é fechada ou fica em segundo plano.
+   O servidor agrupa pelo campo "sessao" (o lead completo usa a mesma sessão). */
 let ultimoParcial = '';
 function salvarParcial(){
   if(leadSent) return;
   const respostas = {};
   Object.keys(S).forEach(k=>{ const v=S[k]; if(Array.isArray(v)?v.length:String(v||'').trim()) respostas[k]=v; });
   if(!Object.keys(respostas).length) return;
+  const chave = JSON.stringify({pos, respostas});
+  if(chave===ultimoParcial) return;
+  ultimoParcial = chave;
   const corpo = JSON.stringify({etapa:'parcial', sessao:SESSAO, evento:EV.id,
-    etapaAtual:stepIdx+1, totalEtapas:STEPS.length, respostas, atualizadoEm:new Date().toISOString()});
-  if(corpo.replace(/"atualizadoEm":"[^"]*"/,'')===ultimoParcial) return;
-  ultimoParcial = corpo.replace(/"atualizadoEm":"[^"]*"/,'');
+    etapaAtual:pos+1, totalEtapas:visiveis().length, respostas});
   try{
     const blob = new Blob([corpo],{type:'application/json'});
     if(!(navigator.sendBeacon && navigator.sendBeacon(CONFIG.api, blob)))
@@ -513,6 +618,7 @@ function salvarParcial(){
 }
 addEventListener('pagehide', salvarParcial);
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') salvarParcial(); });
+
 /* Chamada real. Se a IA ainda não estiver configurada no servidor (503 + demo), usa o calendário de exemplo. */
 async function api(body, timeout){
   const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(), timeout||30000);
@@ -523,6 +629,23 @@ async function api(body, timeout){
     if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
     return j;
   } finally { clearTimeout(t); }
+}
+
+/* 60% topo, 20% meio, 20% fundo, intercalados (mesma regra do servidor). */
+function sequenciaFunil(total){
+  const alvo = {topo:Math.round(total*.6), fundo:Math.round(total*.2)};
+  alvo.meio = Math.max(0, total-alvo.topo-alvo.fundo);
+  const feito = {topo:0,meio:0,fundo:0}; const seq=[];
+  for(let i=0;i<total;i++){
+    let melhor=null, folga=-Infinity;
+    for(const e of ['topo','meio','fundo']){
+      if(feito[e]>=alvo[e]) continue;
+      const f = alvo[e]*(i+1)/total - feito[e];
+      if(f>folga+1e-9){ folga=f; melhor=e; }
+    }
+    feito[melhor]++; seq.push(melhor);
+  }
+  return seq;
 }
 
 /* Calendário de exemplo (usado só enquanto a chave da IA não está configurada).
@@ -613,10 +736,11 @@ const DEMO = {
     cta:'Siga e salve'
   }
 };
-function hashStr(t){ let h=0; for(const c of String(t||'x')) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+const DEMO_FUNIL = {entrada:'topo', sobremesa:'meio', prato_principal:'fundo'};
 async function demoApi(body){
-  await new Promise(r=>setTimeout(r,600));
+  await new Promise(r=>setTimeout(r,500));
   if(body.etapa==='lead') return {ok:true};
+  if(body.etapa==='analise') return {data:{texto:''}};
   const d = body.dados;
   const pl = plano(d.inicio, d.fim, d.total);
   const D = DEMO[d.objetivo] || DEMO['Fazer o cliente voltar'];
@@ -627,37 +751,46 @@ async function demoApi(body){
   const fill = t => String(t).replace(/\{(O|o|do|no|um)\}/g,(_,k)=>art[k]).replace(/\{prato\}/g,prato)
     .replace(/\{bairro\}/g,bairro).replace(/\{tipo\}/g,String(d.tipo||'comida').toLowerCase());
   if(body.etapa==='estrategia'){
-    return {data:{posicionamento:fill(D.pos),
-      tom_de_voz:(d.tom||'Próximo e direto')+'. Fale como quem está no balcão conversando com o cliente.',
-      pilares:D.pilares, temas_semanais:D.temas.slice(0,pl.length)}};
+    return {data:{
+      analise:{resumo:fill('Seu objetivo agora é "'+d.objetivo.toLowerCase()+'" e o que mais incomoda é "'+String(d.dor||'').toLowerCase()+'". O conteúdo precisa colocar {o} {prato} no centro e mostrar por que vale escolher a casa em {bairro}.'),
+        a_favor:[fill('Você tem um campeão de vendas claro: {o} {prato}. É ele que abre os ganchos.'), 'Seu diferencial ('+String(d.diferencial||'').toLowerCase()+') vira prova em cada post de meio de funil.'],
+        ajustar:['Postar só foto do prato com preço não atrai quem ainda não te conhece.','Sem um CTA claro, quem gostou não sabe como pedir ou reservar.']},
+      referencias:[],
+      posicionamento:fill(D.pos),
+      tom_de_voz:'Próximo e direto. Fale como quem está no balcão conversando com o cliente.',
+      pilares:D.pilares.map((p,i)=>({nome:p, por_que:'', exemplos:[fill(D.ideias[i%D.ideias.length][1]), fill(D.ideias[(i+3)%D.ideias.length][1])]})),
+      temas_semanais:D.temas.slice(0,pl.length)}};
   }
   const b = pl.find(x=>x.n===body.semana);
   const len = diffDays(b.isoIni,b.isoFim)+1;
   const fmts = d.formatos&&d.formatos.length?d.formatos:['Reels','Carrossel','Foto'];
   const antes = pl.filter(x=>x.n<b.n).reduce((a,x)=>a+x.qtd,0);
+  const seq = sequenciaFunil(d.total);
   const base = hashStr(body.lead&&body.lead.sessao);
   const tag = t => '#'+String(t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-  const hashtags = [tag(prato), tag(bairro.split(',')[0]), tag(d.tipo||'restaurante'), '#gastronomia'].join(' ');
+  const hashtags = [tag(prato), tag(bairro), tag(d.tipo||'restaurante'), '#gastronomia'].join(' ');
   const posts=[]; for(let k=0;k<b.qtd;k++){
-    const off=Math.floor(k*len/b.qtd); const dia=addDays(b.isoIni,off);
-    const id=D.ideias[(base+antes+k)%D.ideias.length];
-    posts.push({data:fmtDM(dia),formato:fmts[(base+antes+k)%fmts.length],titulo:fill(id[0]),gancho:fill(id[1]),roteiro:id[2].map(fill),
-      legenda:fill(id[3]),cta:fill(id[4]),hashtags,categoria:id[5]});
+    const g = antes+k, f = seq[g];
+    const daEtapa = D.ideias.filter(x=>DEMO_FUNIL[x[5]]===f);
+    const usadas = seq.slice(0,g).filter(x=>x===f).length;
+    const id = daEtapa[(base+usadas)%daEtapa.length];
+    const dia = addDays(b.isoIni, Math.floor(k*len/b.qtd));
+    posts.push({data:fmtDM(dia),formato:fmts[(base+g)%fmts.length],funil:f,pilar:D.pilares[g%D.pilares.length],titulo:fill(id[0]),gancho:fill(id[1]),roteiro:id[2].map(fill),
+      legenda:fill(id[3]),cta:fill(id[4]),hashtags});
   }
   return {data:{tema:D.temas[(b.n-1)%D.temas.length],posts}};
 }
 async function captureLead(){
-  try{ await api({etapa:'lead', lead:leadPayload()}, 6000); leadSent=true; }
-  catch(e){ /* não bloqueia o lead: o WhatsApp é reenviado junto com a geração */ }
+  try{ await api({etapa:'lead', lead:leadPayload()}, 8000); leadSent=true; }
+  catch(e){ /* não bloqueia: o contato também vai junto com a geração */ }
 }
 async function retry(fn,n){ let last; for(let i=0;i<=n;i++){ try{ return await fn(); }catch(e){ last=e; await new Promise(r=>setTimeout(r,900)); } } throw last; }
 
 function dadosPayload(){
-  return {tipo:S.tipo, campeao:(S.campeao||'').trim(), bairro:(S.bairro||'').trim(), operacao:S.operacao, tempo:S.tempo, faixa:S.faixa, dor:S.dor, descoberta:S.descoberta,
-    ticket:S.ticket, diferencial:S.diferencial, tom:S.tom, vender:S.vender, concorrencia:S.concorrencia,
-    status:S.status, naoMostrar:S.naoMostrar, funcionou:S.funcionou, objetivo:S.objetivo,
-    obstaculo:S.obstaculo, aparecer:S.aparecer, formatos:S.formatos,
-    inicio:S.inicio, fim:S.fim, total:parseInt(S.total,10)};
+  const p = periodo();
+  return {tipo:S.tipo, campeao:(S.campeao||'').trim(), bairro:(S.bairro||'').trim(), operacao:S.operacao, ticket:S.ticket,
+    faixa:S.faixa, objetivo:S.objetivo, dor:S.dor, diferencial:S.diferencial, aparecer:S.aparecer, formatos:S.formatos,
+    inicio:p.inicio, fim:p.fim, total:p.total};
 }
 
 /* Divide o período em blocos de até 7 dias e distribui os conteúdos (mesma regra do servidor). */
@@ -674,28 +807,36 @@ function plano(inicio,fim,total){
 /* ============================================================
    GERAÇÃO
    ============================================================ */
-const MSGS = ['Analisando o perfil do seu restaurante','Definindo posicionamento e pilares','Montando os seus conteúdos','Revisando o calendário','Finalizando'];
-let lastRun = null;
+const STAGES = ['Lendo suas respostas','Pesquisando marcas parecidas no mercado','Montando diagnóstico, pilares e funil','Criando ganchos e roteiros','Revisando o calendário'];
+const TIPS = ['60% dos posts atraem gente nova, 20% convencem e 20% vendem.','Os 3 primeiros segundos decidem se a pessoa assiste. Por isso cada post tem um gancho pronto.',
+  'Conteúdo de topo de funil não vende direto: ele faz o seu perfil chegar em quem ainda não te conhece.','Quem salva um post volta nele na hora de pedir. CTA de salvar vale ouro.'];
+let lastRun = null, tipTimer = null;
 
+function setStage(k){
+  $('stages').innerHTML = STAGES.map((s,i)=>'<li class="'+(i<k?'ok':i===k?'now':'')+'"><span class="d"></span>'+esc(s)+'</li>').join('');
+}
 async function generate(){
-  show('vLoading');
-  const dots = document.querySelectorAll('.dots i'); dots.forEach(d=>d.classList.remove('ok'));
-  const setStage = k=>{ $('ldMsg').textContent=MSGS[k]; for(let i=0;i<=k-1&&i<dots.length;i++) dots[i].classList.add('ok'); };
-  setStage(0);
+  show('vLoading'); setStage(0);
+  let ti=0; $('tip').textContent=TIPS[0]; clearInterval(tipTimer);
+  tipTimer = setInterval(()=>{ ti=(ti+1)%TIPS.length; $('tip').textContent=TIPS[ti]; }, 6000);
   const lead = leadPayload(); const dados = dadosPayload();
-  const ativos = plano(S.inicio,S.fim,dados.total).filter(b=>b.qtd>0);
+  const ativos = plano(dados.inicio,dados.fim,dados.total).filter(b=>b.qtd>0);
   lastRun = true;
   try{
-    const est = (await retry(()=>api({etapa:'estrategia',lead,dados,evento:EV.id},110000),1)).data;
+    setStage(1);
+    const pesquisa = await api({etapa:'analise',lead,dados,evento:EV.id},170000).then(r=>r.data&&r.data.texto||'').catch(()=>'');
     setStage(2);
+    const est = (await retry(()=>api({etapa:'estrategia',lead,dados,evento:EV.id,pesquisa},170000),1)).data;
+    setStage(3);
     let feitas = 0;
     const blocos = await Promise.all(ativos.map(b =>
-      retry(()=>api({etapa:'semana',semana:b.n,lead,dados,evento:EV.id,estrategia:est},110000),1).then(r=>{
-        feitas++; setStage(feitas>=ativos.length?4:(feitas*2>=ativos.length?3:2)); return r.data; })
+      retry(()=>api({etapa:'semana',semana:b.n,lead,dados,evento:EV.id,estrategia:est},170000),1).then(r=>{
+        feitas++; if(feitas===ativos.length) setStage(4); return r.data; })
     ));
-    setStage(4); dots.forEach(d=>d.classList.add('ok'));
-    renderResult(est, blocos, ativos);
+    clearInterval(tipTimer);
+    renderResult(est, blocos, ativos, dados);
   }catch(e){
+    clearInterval(tipTimer);
     console.error(e);
     $('failWa').href = waLink('Oi! Tentei gerar o calendário de conteúdo mas deu erro. Pode me ajudar? Sou '+S.nome+' ('+S.instagram+').');
     show('vFail');
@@ -706,40 +847,35 @@ $('retry').addEventListener('click',()=>{ if(lastRun) generate(); });
 /* ============================================================
    RESULTADO
    ============================================================ */
-const CAT = {entrada:'Entrada · atração', prato_principal:'Prato principal · vende', sobremesa:'Sobremesa · fidelização'};
+function normDM(s){ const m = String(s||'').match(/(\d{1,2})\s*\/\s*(\d{1,2})/); return m ? pad(+m[1])+'/'+pad(+m[2]) : ''; }
 
-function normDM(s){
-  const m = String(s||'').match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
-  return m ? pad(+m[1])+'/'+pad(+m[2]) : '';
-}
-function indexOfDM(dm){
-  const dias = diffDays(S.inicio,S.fim)+1;
-  for(let i=0;i<dias;i++){ if(fmtDM(addDays(S.inicio,i))===dm) return i; }
-  return -1;
-}
-function weekdayOf(dm){ const i=indexOfDM(dm); return i<0?'':WEEK[addDays(S.inicio,i).getDay()]; }
-
-function renderResult(est, blocos, ativos){
+function renderResult(est, blocos, ativos, dados){
   const nome = esc(S.nome.split(' ')[0]);
-  const dias = diffDays(S.inicio,S.fim)+1;
-  const postsByDate = {}; let totalPosts = 0;
-  const semanasHtml = blocos.map((sem,idx)=>{
-    const meta = ativos[idx];
+  const inicio = dados.inicio, fim = dados.fim;
+  const dias = diffDays(inicio,fim)+1;
+  const idx = dm => { for(let i=0;i<dias;i++){ if(fmtDM(addDays(inicio,i))===dm) return i; } return -1; };
+  const postsByDate = {}; const cont = {topo:0,meio:0,fundo:0}; let totalPosts = 0;
+
+  const semanasHtml = blocos.map((sem,i)=>{
+    const meta = ativos[i];
     const posts = (Array.isArray(sem.posts)?sem.posts:[]).map(p=>({...p, _dm:normDM(p.data)}))
-      .filter(p=>indexOfDM(p._dm)>=0)
-      .filter((p,i,arr)=>arr.findIndex(q=>q._dm===p._dm)===i)       // 1 conteúdo por dia
-      .sort((a,b)=>indexOfDM(a._dm)-indexOfDM(b._dm));
-    posts.forEach(p=>{ postsByDate[p._dm]=p; totalPosts++; });
+      .filter(p=>idx(p._dm)>=0)
+      .filter((p,j,arr)=>arr.findIndex(q=>q._dm===p._dm)===j)       // 1 conteúdo por dia
+      .sort((a,b)=>idx(a._dm)-idx(b._dm));
+    posts.forEach(p=>{ postsByDate[p._dm]=p; totalPosts++; if(cont[p.funil]!=null) cont[p.funil]++; });
     const cards = posts.map(p=>{
-      const cat = EV.cardapio && CAT[p.categoria] ? '<span class="badge cat">'+esc(CAT[p.categoria])+'</span>' : '';
-      return '<article class="post"><div class="ph"><span class="pd">'+esc(weekdayOf(p._dm))+' · '+esc(p._dm)+'</span>'+
-        '<span class="badge">'+esc(p.formato)+'</span>'+cat+'</div>'+
-        '<h4>'+esc(p.titulo)+'</h4>'+
-        (p.gancho?'<p class="gancho"><span>Gancho</span>'+esc(p.gancho)+'</p>':'')+
-        (Array.isArray(p.roteiro)&&p.roteiro.length?'<div class="rot"><span>O que gravar</span><ol>'+p.roteiro.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div>':'')+
-        '<p class="leg"><span>Legenda</span>'+esc(p.legenda)+'</p>'+
-        (p.cta?'<p class="cta"><em>CTA:</em> '+esc(p.cta)+'</p>':'')+
-        (p.hashtags?'<p class="tags">'+esc(p.hashtags)+'</p>':'')+'</article>';
+      const f = ETAPAS_FUNIL[p.funil] ? p.funil : 'topo';
+      const rot = Array.isArray(p.roteiro)&&p.roteiro.length ? '<span class="lbl">O que gravar</span><ol>'+p.roteiro.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>' : '';
+      return '<article class="post" data-f="'+f+'"><div class="ph"><span class="pd">'+esc(WEEK[addDays(inicio,idx(p._dm)).getDay()])+' · '+esc(p._dm)+'</span>'+
+        '<span class="badge f-'+f+'">'+esc(ETAPAS_FUNIL[f].curto)+'</span><span class="badge">'+esc(p.formato)+'</span></div>'+
+        '<h4>'+esc(p.titulo)+(p.pilar?' · '+esc(p.pilar):'')+'</h4>'+
+        '<p class="gancho">“'+esc(p.gancho||p.titulo)+'”</p>'+
+        '<details><summary>Ver roteiro e legenda</summary>'+rot+
+          '<span class="lbl">Legenda</span><p class="leg">'+esc(p.legenda)+'</p>'+
+          (p.cta?'<p class="cta">CTA: '+esc(p.cta)+'</p>':'')+
+          (p.hashtags?'<p class="tags">'+esc(p.hashtags)+'</p>':'')+
+          '<button type="button" class="copy" data-copy="'+esc((p.legenda||'')+(p.hashtags?'\n\n'+p.hashtags:''))+'">Copiar legenda</button>'+
+        '</details></article>';
     }).join('');
     const tema = sem.tema || (est.temas_semanais&&est.temas_semanais[meta.n-1]) || '';
     const faixa = fmtDM(isoToDate(meta.isoIni))+' a '+fmtDM(isoToDate(meta.isoFim));
@@ -747,48 +883,84 @@ function renderResult(est, blocos, ativos){
   }).join('');
 
   // Calendário do período: começa na segunda anterior ao início e termina no domingo seguinte ao fim
-  const gi = addDays(S.inicio, -((isoToDate(S.inicio).getDay()+6)%7));
-  const gf = addDays(S.fim, (7-isoToDate(S.fim).getDay())%7);
+  const gi = addDays(inicio, -((isoToDate(inicio).getDay()+6)%7));
+  const gf = addDays(fim, (7-isoToDate(fim).getDay())%7);
   const nCel = Math.round((gf-gi)/86400000)+1;
   let grid = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(d=>'<div class="dh">'+d+'</div>').join('');
   for(let i=0;i<nCel;i++){
     const d = new Date(gi); d.setDate(gi.getDate()+i);
-    const iso = toISO(d); const dentro = iso>=S.inicio && iso<=S.fim;
+    const iso = toISO(d); const dentro = iso>=inicio && iso<=fim;
     const p = dentro ? postsByDate[fmtDM(d)] : null;
     const label = (d.getDate()===1||i===0) ? d.getDate()+' '+MESES[d.getMonth()] : d.getDate();
-    grid += '<div class="c'+(p?' has':'')+(dentro?'':' off')+'"><span class="n">'+label+'</span>'+
-      (p?'<span class="f">'+esc(p.formato)+'</span><span class="t">'+esc(p.titulo)+'</span>':'')+'</div>';
+    grid += '<div class="c'+(p?' f-'+(ETAPAS_FUNIL[p.funil]?p.funil:'topo'):'')+(dentro?'':' off')+'"><span class="n">'+label+'</span>'+
+      (p?'<span class="t">'+esc(p.formato)+'</span>':'')+'</div>';
   }
 
-  const pilares = (est.pilares||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+  const an = est.analise||{};
+  const lista = a => (Array.isArray(a)?a:[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+  const refs = (Array.isArray(est.referencias)?est.referencias:[]).filter(r=>r&&r.marca).map(r=>
+    '<div class="box ref"><p class="nm">'+esc(r.marca)+'</p>'+(r.onde?'<p class="on">'+esc(r.onde)+'</p>':'')+
+    '<p><b>O que faz bem</b>'+esc(r.destaque)+'</p><p><b>Como aplicar no seu</b>'+esc(r.como_aplicar)+'</p>'+
+    (/^https?:\/\//.test(r.link||'')?'<a href="'+esc(r.link)+'" target="_blank" rel="noopener">Ver perfil →</a>':'')+'</div>').join('');
+  const pilares = (est.pilares||[]).map(p=> typeof p==='string' ? '<div class="box pil"><h3>'+esc(p)+'</h3></div>' :
+    '<div class="box pil"><h3>'+esc(p.nome)+'</h3>'+(p.por_que?'<p class="pq">'+esc(p.por_que)+'</p>':'')+
+    ((p.exemplos||[]).length?'<div class="ex">'+p.exemplos.map(x=>'<span>'+esc(x)+'</span>').join('')+'</div>':'')+'</div>').join('');
   const bonus = (EV.bonus||[]).filter(b=>b.url).map(b=>'<a class="bcard" href="'+esc(b.url)+'" target="_blank" rel="noopener"><b>Bônus</b>'+esc(b.titulo)+'</a>').join('');
+  const barra = ['topo','meio','fundo'].filter(f=>cont[f]>0).map(f=>'<div style="flex:'+cont[f]+';background:var(--'+f+')" title="'+cont[f]+' posts">'+Math.round(cont[f]/Math.max(1,totalPosts)*100)+'%</div>').join('');
+  const legenda = ['topo','meio','fundo'].map(f=>'<div><i style="background:var(--'+f+')"></i><span><b>'+ETAPAS_FUNIL[f].nome+' ('+ETAPAS_FUNIL[f].pct+'%)</b><br>'+esc(ETAPAS_FUNIL[f].txt)+'</span></div>').join('');
 
   // Validade da isca comercial: data do evento + 7 dias
   const base = (EV.dia && !PREVIEW) ? EV.dia : todaySP();
   const validade = EV.dia ? fmtDM(addDays(base, CONFIG.validadeOfertaDias)) : '';
   const msg = 'Oi! Sou '+S.nome.trim()+' do '+S.instagram.trim()+'. Gerei meu calendário de conteúdo'+(EV.dia?' no evento ('+EV.nomeCurto+')':'')+' e quero agendar o diagnóstico.';
 
-  $('vResult').innerHTML =
-    '<div class="rhead"><div class="wide"><p class="kicker">Calendário de conteúdo · '+fmtDM(isoToDate(S.inicio))+' a '+fmtDM(isoToDate(S.fim))+'</p>'+
-    '<h1>'+nome+', este é o seu calendário</h1>'+
-    '<p>Para '+esc(S.instagram)+' · '+esc(S.tipo)+'. '+totalPosts+' conteúdos em '+dias+' dias, pensados para o seu objetivo: '+esc(S.objetivo.toLowerCase())+'.</p></div></div>'+
-    '<div class="wide">'+
-    '<div class="cards3">'+
-      '<div class="scard"><h3>Posicionamento</h3><p>'+esc(est.posicionamento)+'</p></div>'+
-      '<div class="scard"><h3>Tom de voz</h3><p>'+esc(est.tom_de_voz)+'</p></div>'+
-      '<div class="scard"><h3>Pilares de conteúdo</h3><ul>'+pilares+'</ul></div>'+
-    '</div>'+
+  $('vResult').innerHTML = '<div class="wide">'+
+    '<div class="hero"><p class="kicker">Calendário · '+fmtDM(isoToDate(inicio))+' a '+fmtDM(isoToDate(fim))+'</p>'+
+      '<h1>'+nome+', este é o seu plano de conteúdo</h1>'+
+      '<p>Feito para '+esc(S.instagram)+' a partir das suas respostas, com referências do mercado e a regra 60/20/20 do funil.</p>'+
+      '<div class="meta"><span>'+esc(S.tipo)+'</span><span>'+totalPosts+' conteúdos em '+dias+' dias</span><span>Objetivo: '+esc(S.objetivo)+'</span>'+(S.campeao?'<span>Campeão: '+esc(S.campeao)+'</span>':'')+'</div></div>'+
+
+    (an.resumo?'<section class="sec"><h2>O diagnóstico</h2><p class="lead">'+esc(an.resumo)+'</p>'+
+      '<div class="grid g2"><div class="box"><h3>O que joga a seu favor</h3><ul>'+lista(an.a_favor)+'</ul></div>'+
+      '<div class="box"><h3>O que ajustar</h3><ul>'+lista(an.ajustar)+'</ul></div></div></section>':'')+
+
+    (refs?'<section class="sec"><h2>Referências para se inspirar</h2><p class="lead">Marcas parecidas com a sua que fazem bom conteúdo. Use como inspiração, não como cópia.</p><div class="grid g2">'+refs+'</div></section>':'')+
+
+    '<section class="sec"><h2>Estratégia</h2><div class="grid g2">'+
+      '<div class="box"><h3>Posicionamento</h3><p>'+esc(est.posicionamento)+'</p></div>'+
+      '<div class="box"><h3>Tom de voz</h3><p>'+esc(est.tom_de_voz)+'</p></div></div>'+
+      '<h2 style="font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:24px;margin-top:26px">Pilares de conteúdo</h2>'+
+      '<div class="grid g2">'+pilares+'</div></section>'+
+
     (bonus?'<div class="bonus">'+bonus+'</div>':'')+
-    '<div class="sec"><h2>Seus conteúdos</h2>'+semanasHtml+'</div>'+
-    '<div class="sec"><h2>Visão do período</h2><div class="cal">'+grid+'</div></div>'+
-    '<div class="tools nopr"><button class="btn" id="printBtn">Salvar em PDF</button></div>'+
+
+    '<section class="sec"><h2>O funil do seu calendário</h2><div class="funnel">'+barra+'</div><div class="flegend">'+legenda+'</div></section>'+
+
+    '<section class="sec"><h2>Seus conteúdos</h2><p class="lead">Toque em “Ver roteiro e legenda” para abrir cada post.</p>'+
+      '<div class="filters nopr"><button type="button" class="chip on" data-fil="">Todos</button>'+
+      ['topo','meio','fundo'].map(f=>'<button type="button" class="chip" data-fil="'+f+'">'+esc(ETAPAS_FUNIL[f].curto)+'</button>').join('')+'</div>'+
+      semanasHtml+'</section>'+
+
+    '<section class="sec"><h2>Visão do período</h2><div class="cal">'+grid+'</div></section>'+
+
+    '<div class="tools nopr"><button type="button" class="btn light" id="printBtn">Salvar em PDF</button></div>'+
     '<div class="final"><h2>'+esc(EV.ctaTitulo)+'</h2><p>'+esc(EV.ctaTexto)+'</p>'+
       (validade?'<span class="deadline">Condição válida até '+validade+'</span><br>':'')+
-      '<a class="wa" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+esc(EV.ctaBtn)+'</a></div>'+
+      '<a class="wa" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+esc(EV.ctaBtn)+' '+ARROW+'</a></div>'+
     '<p class="foot">Calendário gerado com IA a partir das suas respostas. Revise cada post antes de publicar.</p>'+
     '</div>';
   show('vResult');
-  const pb = $('printBtn'); if(pb) pb.addEventListener('click',()=>window.print());
+  const vr = $('vResult');
+  $('printBtn').addEventListener('click',()=>window.print());
+  vr.querySelectorAll('[data-fil]').forEach(b=>b.addEventListener('click',()=>{
+    vr.querySelectorAll('[data-fil]').forEach(x=>x.classList.toggle('on',x===b));
+    vr.querySelectorAll('.post').forEach(p=>p.classList.toggle('out', !!b.dataset.fil && p.dataset.f!==b.dataset.fil));
+    vr.querySelectorAll('.week').forEach(w=>w.hidden = !w.querySelector('.post:not(.out)'));
+  }));
+  vr.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+    const ok = ()=>{ b.textContent='Copiado!'; setTimeout(()=>b.textContent='Copiar legenda',1500); };
+    navigator.clipboard ? navigator.clipboard.writeText(b.dataset.copy).then(ok).catch(()=>{}) : null;
+  }));
 }
 
 init();

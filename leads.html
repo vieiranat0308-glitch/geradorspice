@@ -69,7 +69,7 @@ dd{min-width:0;word-break:break-word}
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ROTULOS = {campeao:'Prato mais pedido',bairro:'Bairro',tipo:'Tipo',operacao:'Como vende',tempo:'Tempo de casa',faixa:'Cliente ideal',dor:'Maior problema',descoberta:'Como é descoberto',
+const ROTULOS = {campeao:'Prato mais pedido',bairro:'Bairro',ticket:'Ticket médio',periodo:'Período',freq:'Frequência',tipo:'Tipo',operacao:'Como vende',tempo:'Tempo de casa',faixa:'Cliente ideal',dor:'Maior problema',descoberta:'Como é descoberto',
   ticket:'Ticket médio',diferencial:'Diferencial',tom:'Tom',vender:'Quer vender',concorrencia:'Concorrência',status:'Instagram hoje',
   naoMostrar:'Não quer mostrar',funcionou:'O que funcionou',objetivo:'Objetivo',obstaculo:'Maior trava',aparecer:'Quanto aparece',
   inicio:'Início',fim:'Fim',total:'Conteúdos',formatos:'Formatos',nome:'Nome',whatsapp:'WhatsApp',instagram:'Instagram',perfil:'Papel'};
@@ -104,7 +104,7 @@ function render(){
     const wa = (l.whatsapp||r.whatsapp||'').replace(/\D/g,'');
     const ig = l.instagram||r.instagram||'';
     const quando = x.atualizadoEm ? new Date(x.atualizadoEm).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}) : '';
-    const st = x.status==='completo' ? '<span class="pill ok">Contato completo</span>' : '<span class="pill">Parou na etapa '+esc(x.etapaAtual||'?')+' de 6</span>';
+    const st = x.status==='completo' ? '<span class="pill ok">Contato completo</span>' : '<span class="pill">Parou na etapa '+esc(x.etapaAtual||'?')+' de '+esc(x.totalEtapas||'?')+'</span>';
     const dl = Object.keys(r).map(k=>'<dt>'+esc(ROTULOS[k]||k)+'</dt><dd>'+esc(Array.isArray(r[k])?r[k].join(', '):r[k])+'</dd>').join('');
     return '<div class="item"><div class="top"><span class="nome">'+esc(nome)+'</span>'+st+(x.evento?'<span class="pill ev">'+esc(x.evento)+'</span>':'')+'<span class="when">'+esc(quando)+'</span></div>'+
       '<div class="contato">'+(wa?'<a href="https://wa.me/'+(wa.length<=11?'55':'')+wa+'" target="_blank" rel="noopener">WhatsApp '+esc(wa)+'</a>':'')+
